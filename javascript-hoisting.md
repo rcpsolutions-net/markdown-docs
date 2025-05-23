@@ -19,10 +19,10 @@ graph TD
     D1 -- Variable declared --> E1(Memory:<br/>myVar = <span style='color: DodgerBlue;'>undefined</span>):::memoryState;
 
     B --> D2[let myLet;]:::declaration
-    D2 -- Variable declared,<br/>placed in --> E2(Memory:<br/>myLet <span style='color: GoldenRod;'>(TDZ)</span>):::memoryState;
+    D2 -- Variable declared,<br/>placed in --> E2(Memory:<br/>myLet <span style='color: GoldenRod;'>TDZ</span>):::memoryState;
 
     B --> D3[const myConst;]:::declaration
-    D3 -- Variable declared,<br/>placed in --> E3(Memory:<br/>myConst <span style='color: GoldenRod;'>(TDZ)</span>):::memoryState;
+    D3 -- Variable declared,<br/>placed in --> E3(Memory:<br/>myConst <span style='color: GoldenRod;'>TDZ</span>):::memoryState;
 
     B --> D4[function myFunction() {...}]:::declaration
     D4 -- Declared &<br/>fully defined --> E4(Memory:<br/>myFunction = <span style='color: DarkViolet;'>function definition</span>):::memoryState;
