@@ -75,7 +75,7 @@ graph TD
     B --> E
 
     C -- moved to top of scope --> F[Initialized with undefined / Fully accessible]
-    D -- moved to top of scope --> G[In Temporal Dead Zone (TDZ)]
+    D -- moved to top of scope --> G[In Temporal Dead Zone]
     E -- stays in place --> H[Executes in order]
 
     F --> I[Execution]
