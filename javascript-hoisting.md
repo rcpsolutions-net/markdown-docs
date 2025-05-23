@@ -83,13 +83,13 @@ graph TD
     J -- No --> I
     H --> I
 
-    subgraph Legend
-        direction LR
-        L1[var: undefined, accessible]
-        L2[let/const: TDZ, not accessible]
-        L3[Function Decl: fully accessible]
-        L4[Function Expr: variable rules apply]
-    end
+subgraph Legend
+    direction LR
+    L1[var: undefined, accessible]
+    L2[let/const: TDZ, not accessible]
+    L3[Function Decl: fully accessible]
+    L4[Function Expr: variable rules apply]
+end
 ```
 
 It's not that hard. Understand the rules, and you won't write garbage code.
