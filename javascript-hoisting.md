@@ -1,4 +1,3 @@
-```markdown
 # JavaScript Hoisting: It's Not Magic, Just Weird
 
 Hoisting isn't some mystical force; it's how JavaScript's parser works before execution. Essentially, `var` declarations and function declarations are "lifted" to the top of their containing scope. Assignments, however, are not. Get it straight.
@@ -83,7 +82,6 @@ graph TD
     J -- Yes --> K[ReferenceError]
     J -- No --> I
     H --> I
-```
 
     subgraph Legend
         direction LR
