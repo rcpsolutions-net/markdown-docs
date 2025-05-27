@@ -24,16 +24,16 @@ RAG involves:
 
 ```mermaid
 graph TD
-    A[Company Website] --> B{Web Scraper (Puppeteer/Cheerio)};
-    C[Company Documents (PDFs, DOCX)] --> D{Document Parsers (pdf-parse, mammoth)};
-    B --> E[Text Preprocessing & Chunking (LangChain.js)];
+    A[Company Website] --> B{Web Scraper Puppeteer/Cheerio};
+    C[Company Documents PDFs, DOCX] --> D{Document Parsers pdf-parse, mammoth};
+    B --> E[Text Preprocessing & Chunking LangChain.js];
     D --> E;
-    E --> F[Embedding Model API (OpenAI, Cohere, local Ollama)];
-    F --> G[Vector Database >(Pinecone, Weaviate, Chroma, Supabase)];
+    E --> F[Embedding Model API OpenAI, Cohere, local Ollama];
+    F --> G[Vector Database > Pinecone, Weaviate, Chroma, Supabase];
     H[User Query] --> I[Embed User Query];
     I --> G;
     G --> J[Relevant Text Chunks];
-    J --> K[Pre-trained SLM (OpenAI GPT, LLaMA, Mistral)];
+    J --> K[Pre-trained SLM OpenAI GPT, LLaMA, Mistral\;
     K --> L[SLM Response];
 ```
 
