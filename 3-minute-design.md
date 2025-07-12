@@ -1,4 +1,4 @@
-                                                                                                            ###### (Markdown document prompted by Lawrence Ham via Gemini-Pro)
+###### (Markdown document prompted by Lawrence Ham via Gemini-Pro)
 
 ---
 
