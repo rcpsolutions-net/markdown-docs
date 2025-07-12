@@ -1,4 +1,4 @@
-(Markdown document created by AI as per instructed by Lawrence Ham)
+###### (Markdown document prompted by Lawrence Ham @ Gemini-Pro)
 
 ---
 
