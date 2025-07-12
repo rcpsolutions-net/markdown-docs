@@ -22,8 +22,10 @@ Why OAuth 2.0? OAuth 2.0 is the modern, secure standard. It allows your central 
 Action: You will need to create a HubSpot Developer Account and register a "private app" to get your client ID and client secret, which are necessary for the OAuth flow.
 Identifying Key Performance Indicators (KPIs)
 Before building anything, define what you need to see. This will determine which API endpoints you need to call.
+
 Common Marketing KPIs:
-New Contacts/Leads (by source)
+
+*    New Contacts/Leads (by source)
 Marketing Qualified Leads (MQLs)
 Customer Acquisition Cost (CAC)
 Website Sessions & Traffic Sources
