@@ -19,7 +19,7 @@ The cornerstone of any multi-account application is a secure and scalable authen
 > HubSpot's traditional API keys are being deprecated for many uses. More importantly, they are tied to a single portal and offer less granular control. They are not suitable for a secure, multi-tenant application where you need to manage access for different clients independently.
 
 > #### ✨ **Why OAuth 2.0?**
-> OAuth 2.0 is the modern, secure industry standard. It allows your central application to be granted access to **each HubSpot portal individually** by a user from that portal. Your application will then store a unique `access_token` and `refresh_token` for each connected company. This powerful mechanism allows your app to pull data on their behalf without ever needing to store or handle their sensitive user passwords.
+> OAuth 2.0 is the modern, secure industry standard. It allows your central application to be granted access to **each HubSpot portal individually** by a user from that portal. Your application will then store a unique `access_token` and `refresh_token` for each connected company. This mechanism allows your app to pull data on their behalf *without* ever needing to store or handle their sensitive user passwords.
 
 ---
 
@@ -37,7 +37,7 @@ Before writing a single line of code or connecting any service, you must create 
 
 ### 📊 **Identifying Key Performance Indicators (KPIs)**
 
-A dashboard is useless without the right data. Before you build, you must define *what* you need to measure. This critical step determines which HubSpot API endpoints you will need to access.
+A dashboard needs data! Before you build, you must define *what* you need to measure. This critical step determines which HubSpot API endpoints you will need to access.
 
 #### **🚀 Common Marketing KPIs**
 
