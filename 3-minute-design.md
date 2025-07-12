@@ -33,7 +33,7 @@ Before writing a single line of code or connecting any service, you must create 
 
 ---
 
-# For Jeremy:
+# Need requirments from Jeremy:
 
 ## 📊 **Identifying Key Performance Indicators (KPIs)**
 
