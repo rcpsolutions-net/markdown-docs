@@ -6,7 +6,7 @@
 
 This document outlines the architecture and development steps for creating a custom application to aggregate and display data from multiple HubSpot portals.
 
-*   **Backend Tech Stack:** Node.js, Express.js, TypeScript
+*   **Backend Tech Stack:** Node.js, Fastify.js, TypeScript
 *   **Database:** PostgreSQL
 *   **ORM:** TypeORM (or Prisma)
 *   **HubSpot Interaction:** `@hubspot/api-client` (Official HubSpot Node.js SDK) https://www.npmjs.com/package/@hubspot/api-client
