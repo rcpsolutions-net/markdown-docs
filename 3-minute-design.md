@@ -33,7 +33,11 @@ Before writing a single line of code or connecting any service, you must create 
 
 ---
 
-# Q for Jeremy: Any specific KPIs to aggregate and report? 
+---
+
+# Question(s) for Jeremy: 
+
+### Any specific KPIs to focus on? 
 
 ## 📊 **Identifying Key Performance Indicators (KPIs)**
 
