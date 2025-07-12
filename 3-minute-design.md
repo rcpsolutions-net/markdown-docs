@@ -1,6 +1,4 @@
-Markdown document created by AI as per instructed by Lawrence Ham
-
-This guide is designed to be a technical blueprint for a development team.
+(Markdown document created by AI as per instructed by Lawrence Ham)
 
 ---
 
