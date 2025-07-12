@@ -15,6 +15,34 @@ This document outlines the architecture and development steps for creating a cus
 
 ---
 
+Notes: 
+Understanding Authentication: OAuth 2.0 is Key
+Why not API Keys? HubSpot's traditional API keys are tied to a single portal and are being deprecated for many uses. They are not suitable for a scalable, secure multi-portal application.
+Why OAuth 2.0? OAuth 2.0 is the modern, secure standard. It allows your central application (whether it's a BI tool or custom code) to be granted access to each HubSpot portal individually by a user from that portal. Your application will store a unique access/refresh token for each company, allowing it to pull data on their behalf without storing user passwords.
+Action: You will need to create a HubSpot Developer Account and register a "private app" to get your client ID and client secret, which are necessary for the OAuth flow.
+Identifying Key Performance Indicators (KPIs)
+Before building anything, define what you need to see. This will determine which API endpoints you need to call.
+Common Marketing KPIs:
+New Contacts/Leads (by source)
+Marketing Qualified Leads (MQLs)
+Customer Acquisition Cost (CAC)
+Website Sessions & Traffic Sources
+Email Campaign Performance (Open Rate, CTR)
+Form Submissions
+Common Sales KPIs:
+New Deals Created (by pipeline)
+Deal Velocity / Sales Cycle Length
+Win Rate (%)
+Total Pipeline Value
+Sales Activities (Calls, Meetings logged)
+Common Service KPIs:
+Tickets Created vs. Closed
+Average Ticket Response Time
+Customer Satisfaction (CSAT) Scores
+Data Aggregation Strategy
+You need a central place to combine the data from Portal A, Portal B, and Portal C. This central repository allows for "apples-to-apples" comparisons.
+This could be a database (like PostgreSQL, BigQuery) in the custom approach, or it could be handled internally by the BI tool in the low-code approach.
+
 ### **Phase 1: High-Level Architecture & Project Setup**
 
 First, let's visualize the complete system architecture. Data flows from individual HubSpot portals, through our backend service, into a central database, and is finally served to a front-end for visualization.
