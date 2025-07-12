@@ -28,13 +28,13 @@ graph TD
     end
 
     subgraph Your Custom Application
-        subgraph Backend Service (Node.js/TypeScript)
+        subgraph Backend Service
             A[OAuth Handler] --> DB
             E[ETL Service] --> DB
             API[REST API] --> DB
         end
         subgraph Data Storage
-            DB[(PostgreSQL Database)]
+            DB[PostgreSQL Database]
         end
         subgraph Frontend
             UI(Dashboard UI) --> API
