@@ -11,7 +11,7 @@ This document outlines the architecture and development steps for creating a cus
 *   **Backend Tech Stack:** Node.js, Express.js, TypeScript
 *   **Database:** PostgreSQL
 *   **ORM:** TypeORM (or Prisma)
-*   **HubSpot Interaction:** `@hubspot/api-client` (Official HubSpot Node.js SDK)
+*   **HubSpot Interaction:** `@hubspot/api-client` (Official HubSpot Node.js SDK) https://www.npmjs.com/package/@hubspot/api-client
 
 ---
 
