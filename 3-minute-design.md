@@ -1,4 +1,4 @@
-###### (Markdown document prompted by Lawrence Ham @ Gemini-Pro)
+                                                                                                            ###### (Markdown document prompted by Lawrence Ham via Gemini-Pro)
 
 ---
 
@@ -33,9 +33,9 @@ Before writing a single line of code or connecting any service, you must create 
 
 ---
 
-## For Jeremy:
+# For Jeremy:
 
-### 📊 **Identifying Key Performance Indicators (KPIs)**
+## 📊 **Identifying Key Performance Indicators (KPIs)**
 
 A dashboard needs data! Before you build, you must define *what* you need to measure. This critical step determines which HubSpot API endpoints you will need to access.
 
