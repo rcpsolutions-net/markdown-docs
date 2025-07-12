@@ -13,37 +13,66 @@ This document outlines the architecture and development steps for creating a cus
 *   **ORM:** TypeORM (or Prisma)
 *   **HubSpot Interaction:** `@hubspot/api-client` (Official HubSpot Node.js SDK) https://www.npmjs.com/package/@hubspot/api-client
 
+### 🔑 **Understanding Authentication: OAuth 2.0 is Key**
+
+The cornerstone of any multi-account application is a secure and scalable authentication method. For connecting to multiple HubSpot portals, OAuth 2.0 is the non-negotiable standard.
+
+> #### 🤔 **Why not API Keys?**
+> HubSpot's traditional API keys are being deprecated for many uses. More importantly, they are tied to a single portal and offer less granular control. They are not suitable for a secure, multi-tenant application where you need to manage access for different clients independently.
+
+> #### ✨ **Why OAuth 2.0?**
+> OAuth 2.0 is the modern, secure industry standard. It allows your central application to be granted access to **each HubSpot portal individually** by a user from that portal. Your application will then store a unique `access_token` and `refresh_token` for each connected company. This powerful mechanism allows your app to pull data on their behalf without ever needing to store or handle their sensitive user passwords.
+
 ---
 
-Notes: 
-Understanding Authentication: OAuth 2.0 is Key
-Why not API Keys? HubSpot's traditional API keys are tied to a single portal and are being deprecated for many uses. They are not suitable for a scalable, secure multi-portal application.
-Why OAuth 2.0? OAuth 2.0 is the modern, secure standard. It allows your central application (whether it's a BI tool or custom code) to be granted access to each HubSpot portal individually by a user from that portal. Your application will store a unique access/refresh token for each company, allowing it to pull data on their behalf without storing user passwords.
-Action: You will need to create a HubSpot Developer Account and register a "private app" to get your client ID and client secret, which are necessary for the OAuth flow.
-Identifying Key Performance Indicators (KPIs)
-Before building anything, define what you need to see. This will determine which API endpoints you need to call.
+### 🎯 **Action: First Steps**
 
-Common Marketing KPIs:
+Before writing a single line of code or connecting any service, you must create a HubSpot Developer Account.
 
-*    New Contacts/Leads (by source)
-Marketing Qualified Leads (MQLs)
-Customer Acquisition Cost (CAC)
-Website Sessions & Traffic Sources
-Email Campaign Performance (Open Rate, CTR)
-Form Submissions
-Common Sales KPIs:
-New Deals Created (by pipeline)
-Deal Velocity / Sales Cycle Length
-Win Rate (%)
-Total Pipeline Value
-Sales Activities (Calls, Meetings logged)
-Common Service KPIs:
-Tickets Created vs. Closed
-Average Ticket Response Time
-Customer Satisfaction (CSAT) Scores
-Data Aggregation Strategy
-You need a central place to combine the data from Portal A, Portal B, and Portal C. This central repository allows for "apples-to-apples" comparisons.
-This could be a database (like PostgreSQL, BigQuery) in the custom approach, or it could be handled internally by the BI tool in the low-code approach.
+1.  Navigate to the [HubSpot Developer Portal](https://developers.hubspot.com/).
+2.  Create a new **Private App**.
+3.  From the app's "Auth" settings page, you will get your `Client ID` and `Client Secret`. These are the keys to initiating the OAuth 2.0 flow.
+
+---
+
+## For Jeremy:
+
+### 📊 **Identifying Key Performance Indicators (KPIs)**
+
+A dashboard is useless without the right data. Before you build, you must define *what* you need to measure. This critical step determines which HubSpot API endpoints you will need to access.
+
+#### **🚀 Common Marketing KPIs**
+
+*   `👤` **New Contacts/Leads** (segmented by source)
+*   `✅` **Marketing Qualified Leads (MQLs)**
+*   `💰` **Customer Acquisition Cost (CAC)**
+*   `🌐` **Website Sessions & Traffic Sources**
+*   `📧` **Email Campaign Performance** (Open Rate, CTR)
+*   `📋` **Form Submissions**
+
+#### **📈 Common Sales KPIs**
+
+*   `🆕` **New Deals Created** (by pipeline)
+*   `⏳` **Deal Velocity** / Sales Cycle Length
+*   `🏆` **Win Rate (%)**
+*   `💲` **Total Pipeline Value**
+*   `📞` **Sales Activities Logged** (Calls, Meetings)
+
+#### **🛠️ Common Service KPIs**
+
+*   `🎟️` **Tickets Created vs. Closed**
+*   `⏱️` **Average Ticket Response Time**
+*   `⭐` **Customer Satisfaction (CSAT) Scores**
+
+---
+
+### 🗃️ **Data Aggregation Strategy**
+
+To compare performance across different companies, you must pull data from disparate sources (Portal A, Portal B, Portal C) into one unified location. This central repository is what enables true "apples-to-apples" comparison and reporting.
+
+*   **Custom-Build Approach:** This central store would be a dedicated database that you control, such as **PostgreSQL**, or a cloud data warehouse like **Google BigQuery**.
+
+*   **Low-Code/BI Tool Approach:** The Business Intelligence tool (like Databox, Looker Studio, etc.) handles the aggregation internally through a feature often called "data blending." You connect each portal as a separate data source, and the tool combines them for you in the visualization layer.
 
 ### **Phase 1: High-Level Architecture & Project Setup**
 
