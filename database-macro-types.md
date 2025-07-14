@@ -57,8 +57,13 @@ This diagram shows two documents within the same "collection." Note how they hav
 ```mermaid
 graph TD
     subgraph "Users Collection (MongoDB)"
-        doc1("📄 Document 1 { _id: 1, name: 'Alice', interests: ['reading', 'hiking'] }")
-        doc2("📄 Document 2 { _id: 2, name: 'Bob', city: 'New York',  has_pet: true }")
+        doc1("📄 Document 1 { _id: 1,
+                            name: 'Alice',
+                            interests: ['reading', 'hiking'] }")
+        doc2("📄 Document 2 { _id: 2,
+                            name: 'Bob',
+                            city: 'New York',
+                            has_pet: true }")
     end
 ```
 
@@ -81,13 +86,13 @@ This flowchart illustrates the two-phase process: indexing data and then perform
 ```mermaid
 graph TD
     subgraph "Indexing Phase"
-        A[Unstructured Data "The cat sat on the mat"] --> B(Embedding Model);
+        A[Unstructured Data-The cat sat on the mat] --> B(Embedding Model);
         B --> C{Vector[0.1, 0.9, 0.4, ...]};
         C --> D[(Vector Database)];
     end
 
     subgraph "Query Phase"
-        E[Query "Where did the feline sit?"] --> F(Embedding Model);
+        E[Query-Where did the feline sit] --> F(Embedding Model);
         F --> G{Query Vector[0.2, 0.8, 0.5, ...]};
         G --> H{Similarity Search};
         D --> H;
