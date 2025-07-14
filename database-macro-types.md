@@ -147,7 +147,7 @@ mindmap
 
 ### Understanding Vectors: The Language of Modern AI
 
-This document explains the fundamental concept behind vector databases: what a vector is, and what it means to "convert" data into one.
+This section explains the fundamental concept behind vector databases: what a vector is, and what it means to "convert" data into one.
 
 ---
 
