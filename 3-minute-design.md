@@ -33,9 +33,8 @@ Before writing a single line of code or connecting any service, you must create 
 
 ---
 
----
 
-# Question(s) for Jeremy: 
+## Question(s) for JY: 
 
 ### Any specific KPIs to focus on? 
 
