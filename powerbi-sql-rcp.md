@@ -1,7 +1,8 @@
-# Partner's Personnel: Project MS-SQL -> PowerBi -> RCP v4
+# Client: Project MS-SQL -> PowerBi -> RCP v4
 
 ## Overview
-Partners Personnel: This document is a rough draft demonstrating the steps and softeware necessary to connect Partners' MS-SQL Logship to MS PowerBi using Azure and Microsoft Graph API. This solution enables automated data refresh and report generation based on client needs
+This document is a rough draft demonstrating the steps and softeware necessary to connect Partners' MS-SQL Logship to MS PowerBi using Azure and Microsoft Graph API. This solution enables automated data refresh and report generation based on client needs.
+Markdown document prompted and edited by LHam.
 
 ## Architecture Overview
 
@@ -245,5 +246,3 @@ graph TD
     style A fill:#f9f,stroke:#333,stroke-width:4px
     style E fill:#bbf,stroke:#333,stroke-width:4px
 ```
-
-document prompted and slightly edited by lham 05/02/2025
