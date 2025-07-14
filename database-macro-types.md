@@ -1,8 +1,8 @@
 ***
 
-# FROM SQL ro AI: A Quick Glance At Different Database Architectures
+# From SQL to AI: A Quick Glance At Different Database Architectures
 
-> **Original Question:** "Explain the differences between a relational database, nosql database and a vector database. Also, include any similarities and closest matching database compared to way human memory works"
+> **Original Question:** "Explain the differences between a relational database, nosql database and a vector database. Also, include any similarities and closest matching database compared to way human memory works for reference"
 
 This document explores three fundamental types of databases that power modern applications. We will examine their core structures, primary use cases, and conclude with an analogy comparing their retrieval methods to the fascinating way human memory works.
 
