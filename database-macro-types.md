@@ -93,7 +93,7 @@ graph TD
 
     subgraph "Query Phase"
         E[Query-Where did the feline sit] --> F(Embedding Model);
-        F --> G{Query Vector[0.2, 0.8, 0.5, ...]};
+        F --> G{Query Vector-numeric semantic values...};
         G --> H{Similarity Search};
         D --> H;
         H --> I[Results: The cat sat on the mat];
