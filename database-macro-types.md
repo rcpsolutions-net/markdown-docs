@@ -1,6 +1,6 @@
 ***
 
-# A Quick Glance At Different Database Architectures
+# FROM SQL ro AI: A Quick Glance At Different Database Architectures
 
 > **Original Question:** "Explain the differences between a relational database, nosql database and a vector database. Also, include any similarities and closest matching database compared to way human memory works"
 
@@ -122,9 +122,9 @@ Human memory is not a perfect, structured table. We recall information through *
 
 *   A **Relational Database** is like our memory for hard facts ("What is your address?"). It's precise but lacks associative power.
 *   A **NoSQL Graph Database** is a step closer, modeling explicit relationships ("Bob is friends with Alice").
-*   A **Vector Database** is the **closest match to the *retrieval mechanism* of human associative memory.** It mimics our ability to find information based on a "vibe" or a collection of related concepts, rather than a direct query.
+*   A **Vector Database** is the **closest match to the *retrieval mechanism* of human associative memory.** It mimics our ability to find information based on a "vibe" or a collection of related concepts, rather than a direct query. Let's look a closer look at human memory and a vector database.
 
-### Visualizing Associative Recall
+## Visualizing Associative Recall
 
 This mind map shows how a chain of associated concepts leads to a specific memory, much like how a vector database uses a query vector to find the closest matches in its conceptual space.
 
@@ -141,7 +141,7 @@ mindmap
       --> **Chris Pratt**
 ```
 
-## Into the Further:
+## Into the Further We Go:
 
 ***
 
