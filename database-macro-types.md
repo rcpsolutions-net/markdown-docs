@@ -1,6 +1,6 @@
 ***
 
-# A Deep Dive into Database Architectures
+# A Quick Glance At Different Database Architectures
 
 > **Original Question:** "Explain the differences between a relational database, nosql database and a vector database. Also, include any similarities and closest matching database compared to way human memory works"
 
@@ -8,7 +8,7 @@ This document explores three fundamental types of databases that power modern ap
 
 ---
 
-## 1. Relational Database (e.g., PostgreSQL, MySQL)
+## 1. Relational Database (e.g., MS-SQL, PostgreSQL, MySQL)
 
 This is the traditional, highly structured foundation of the database world.
 
@@ -87,7 +87,7 @@ This flowchart illustrates the two-phase process: indexing data and then perform
 graph TD
     subgraph "Indexing Phase"
         A[Unstructured Data-The cat sat on the mat] --> B(Embedding Model);
-        B --> C{Index numerical fingerprint of the sentence's meaning};
+        B --> C{Index numerical fingerprint of the sentence's meaning space};
         C --> D[(Vector Database)];
     end
 
