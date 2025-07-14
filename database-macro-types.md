@@ -81,17 +81,17 @@ This flowchart illustrates the two-phase process: indexing data and then perform
 ```mermaid
 graph TD
     subgraph "Indexing Phase"
-        A[Unstructured Data(e.g., 'The cat sat on the mat')] --> B(Embedding Model);
+        A[Unstructured Data(The cat sat on the mat)] --> B(Embedding Model);
         B --> C{Vector[0.1, 0.9, 0.4, ...]};
         C --> D[(Vector Database)];
     end
 
     subgraph "Query Phase"
-        E[Query(e.g., 'Where did the feline sit?')] --> F(Embedding Model);
+        E[Query(Where did the feline sit?)] --> F(Embedding Model);
         F --> G{Query Vector[0.2, 0.8, 0.5, ...]};
         G --> H{Similarity Search};
         D --> H;
-        H --> I[Results: 'The cat sat on the mat'];
+        H --> I[Results: The cat sat on the mat];
     end
 ```
 
