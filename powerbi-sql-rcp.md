@@ -244,6 +244,6 @@ graph TD
     
     style A fill:#f9f,stroke:#333,stroke-width:4px
     style E fill:#bbf,stroke:#333,stroke-width:4px
-```
+``
 
-document created by lham 05/02/2025
+document prompted and slightly edited by lham 05/02/2025
