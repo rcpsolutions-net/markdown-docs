@@ -51,6 +51,7 @@ To maintain momentum, the following action items were agreed upon, with a follow
 | **🎨 Provide UI Feedback & Mockups** | Payroll Team | Send sketches, screenshots, or detailed descriptions of the ideal user interface. Focus on the layout of Bullhorn data, required buttons, and overall workflow. |
 | **🔓 Grant Database Access** | Yasser | Provide Lawrence with the necessary credentials and connection information for the Bullhorn SQL mirror database. |
 | **🛠️ Develop Integration Queries** | Lawrence | Once access is granted, begin developing the SQL queries needed to match OCR'd data to Bullhorn records and pull the critical fields (Assignment ID, Pay Rate, etc.). |
-| **📚 Compile Master Business Rules** | Maria | Work with Jen Rivas to obtain the master document of all client, state, and local payroll rules. This will be essential for a future development phase. |
+| **📚 Compile Master Business Rules** | Maria | Work with Jen to obtain the master document of all client, state, and local payroll rules. This will be essential for a future development phase. |
 | **🗓️ Schedule Follow-up Meeting** | David | Organize the next follow-up call to review Lawrence's progress on the integration and discuss the UI feedback from the payroll team. |
-| **Keep being cool** | Daniel | Will be cool. |
+
+
