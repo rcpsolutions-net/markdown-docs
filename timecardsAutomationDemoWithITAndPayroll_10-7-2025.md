@@ -1,6 +1,3 @@
-Of course. Here is a more detailed and visually enhanced version of the meeting summary, expanded to include more context and color from the discussion.
-
----
 
 # 🚀 Meeting Debrief: Supercharging Payroll with the New OCR Automation Tool
 
