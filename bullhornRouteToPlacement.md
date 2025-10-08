@@ -14,19 +14,19 @@ When a timesheet only provides an associate's name and a client's name, you must
 
 ```mermaid
 graph TD
-    A[📄 Timesheet Info <br/>(Associate: 'Jane Doe', Client: 'Global Tech Inc.')] --> B{Has placementId?};
-    B -- Yes --> C[🎯 Direct Lookup: <br/> GET /entity/Placement/{id}];
-    B -- No --> D[🔍 Step 1: Search Candidates <br/> query=name:'Jane Doe'];
+    A[📄 Timesheet Info (Associate: 'Jane Doe', Client: 'Global Tech Inc.')] --> B{Has placementId?};
+    B -- Yes --> C[🎯 Direct Lookup: GET /entity/Placement/{id}];
+    B -- No --> D[🔍 Step 1: Search Candidates query=name:'Jane Doe'];
     A --> D;
-    D --> E[Found Candidate IDs <br/> e.g., [123, 456]];
-    A --> F[🔍 Step 2: Search Clients <br/> query=name:'Global Tech Inc.'];
-    F --> G[Found Client IDs <br/> e.g., [88, 99]];
-    E --> H[🧩 Step 3: Correlate Placements <br/> query=candidate.id IN (123,456) <br/> AND jobOrder.clientCorporation.id IN (88,99) <br/> AND status:'Approved'];
+    D --> E[Found Candidate IDs e.g., [123, 456]];
+    A --> F[🔍 Step 2: Search Clients query=name:'Global Tech Inc.'];
+    F --> G[Found Client IDs [88, 99]];
+    E --> H[🧩 Step 3: Correlate Placements query=candidate.id IN (123,456) AND jobOrder.clientCorporation.id IN (88,99) AND status:'Approved'];
     G --> H;
     H --> I{Analyze Results};
     I -- 0 Found --> J[❌ No Match Found];
-    I -- 1 Found --> K[✅ Success! <br/> Return Placement];
-    I -- 2+ Found --> L[⚠️ Ambiguous Match <br/> Return all possibilities for user to select];
+    I -- 1 Found --> K[✅ Success! Return Placement];
+    I -- 2+ Found --> L[⚠️ Ambiguous Match Return all possibilities for user to select];
     C --> K;
 ```
 
