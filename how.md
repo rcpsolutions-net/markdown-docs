@@ -1,8 +1,5 @@
 # Bullhorn API Integration: Candidates, Timecards, and Payroll
-
-This document provides a detailed guide for developers on interacting with the Bullhorn REST API, with a primary focus on the entities and processes involved in managing candidates and submitting timecards for payroll.
-
-The code examples are written for **Node.js 22**, leveraging modern features like the built-in `fetch` API.
+### Prompted and edited by Lawrence Ham
 
 ## 1. Bullhorn API Fundamentals
 
