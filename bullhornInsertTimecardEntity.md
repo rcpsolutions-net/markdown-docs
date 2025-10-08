@@ -2,6 +2,7 @@
 
 # 📢 Bullhorn API Integration: Candidates, Timecards, and Payroll
 *Prompted and edited by Lawrence Ham*
+*Note: Timesheet/punch information will most likely have to INSERTED through the Bullhorn API. However, to minimize Bullhorn API use, the Partners BH-DB-Mirror can be utilized directly for the majority of our queries*
 
 ---
 
