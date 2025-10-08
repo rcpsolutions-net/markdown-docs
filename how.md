@@ -1,122 +1,408 @@
-Programmatic Insertion of Associate Time Card Data: Architectural Analysis of Bullhorn REST and Time & Expense APIs
-I. Core API Access and Architectural Overview
-The integration environment for Bullhorn is strictly governed by conventional RESTful architecture, specialized data center routing, and rigorous OAuth 2.0 security protocols. Understanding this foundation is paramount before attempting data transmission, particularly for transactional data like time cards.
-A. Bullhorn REST API Conventions and Infrastructure
-The Bullhorn REST API adheres to widely accepted standards, utilizing conventional HTTP practices regarding methods, character encodings, and URL case sensitivity. Data communication relies exclusively on the JavaScript Object Notation (JSON) format.
-A critical architectural constraint is the mandatory use of data-center-specific URLs. Developers cannot rely on a single, global endpoint. The correct URL must be retrieved by executing a GET rest-services/loginInfo request using the API username. If the integration fails to use the correct data center URL, the Bullhorn system issues a 307 redirect. Consequently, the integration code must be explicitly engineered to handle this 307 redirect seamlessly to proceed with any subsequent API requests. Furthermore, all API URLs are logically partitioned by corporation, requiring a {corptoken} identifier as the first path element in all entity access paths (e.g., .../{corptoken}/entity/Candidate).
-B. The Multi-Step OAuth 2.0 Authentication Flow
-Bullhorn enforces OAuth 2.0 as the sole mechanism for REST API authorization, ensuring secure communication between the external application (client) and the Bullhorn resources. Establishing a valid session, represented by the BhRestToken, requires a sequential four-step process:
- * Data Center Determination: The appropriate data center URL ({DC}) is discovered by making a GET call to https://rest.bullhornstaffing.com/rest-services/loginInfo?username={API_Username}.
- * Authorization Code Retrieval: An authorization request is made to the specific data center’s authorize endpoint (/oauth/authorize), typically involving the provision of Bullhorn user credentials (manually or programmatically) to retrieve the temporary authCode.
- * Access Token Retrieval: The authCode is then exchanged for the access_token (valid for 10 minutes) and potentially a long-lived refresh_token via a POST request to the /oauth/token endpoint, requiring the application's client_id and client_secret.
- * REST Session Login: Finally, the access_token is used in a POST /rest-services/login request. The response returns the persistent BhRestToken (the session key) and the definitive restUrl required for all subsequent entity interactions.
-OAuth 2.0 Authentication Flow Visualization
+# Bullhorn API Integration: Candidates, Timecards, and Payroll
+
+This document provides a detailed guide for developers on interacting with the Bullhorn REST API, with a primary focus on the entities and processes involved in managing candidates and submitting timecards for payroll.
+
+The code examples are written for **Node.js 22**, leveraging modern features like the built-in `fetch` API.
+
+## 1. Bullhorn API Fundamentals
+
+Before interacting with specific entities, it's crucial to understand the API's structure and authentication mechanism.
+
+### 1.1. API Structure & Endpoint
+
+The base URL for the Bullhorn REST API is dynamic and provided to you after you authenticate. It typically looks like this:
+
+```
+https://rest{cluster}.bullhornstaffing.com/rest-services/{corpToken}/
+```
+
+-   `{cluster}`: The specific data center cluster your instance is on (e.g., `21`, `90`).
+-   `{corpToken}`: Your unique corporation token.
+
+You receive both the `restUrl` and a session key (`BhRestToken`) after a successful login.
+
+### 1.2. Authentication (OAuth 2.0)
+
+Bullhorn uses the OAuth 2.0 authorization code flow. The process is a three-step dance:
+
+1.  **Get Authorization Code**: Redirect the user to Bullhorn's `/oauth/authorize` endpoint. After they log in and approve, Bullhorn redirects them back to your specified `redirect_uri` with a temporary `code` in the query string.
+2.  **Get Access/Refresh Tokens**: Exchange the authorization `code` for an `access_token` and a `refresh_token` by making a POST request to the `/oauth/token` endpoint.
+3.  **Login and Get Session Token**: Use the `access_token` to call the `/login` endpoint. This is the crucial step that returns the `restUrl` and the `BhRestToken` (session token) you'll use for all subsequent API calls.
+
+The `BhRestToken` must be included as a header in every API request:
+
+```json
+{
+  "BhRestToken": "YOUR_SESSION_TOKEN_HERE"
+}
+```
+
+### Node.js Example: Full Authentication Flow
+
+```javascript
+// Node.js 22 - Using built-in fetch
+
+// Credentials (should be stored securely, e.g., in environment variables)
+const config = {
+    authUrl: 'https://auth.bullhornstaffing.com/oauth',
+    apiUrl: 'https://rest.bullhornstaffing.com/rest-services', // Base, will be replaced
+    clientId: 'YOUR_CLIENT_ID',
+    clientSecret: 'YOUR_CLIENT_SECRET',
+    username: 'YOUR_API_USERNAME',
+    password: 'YOUR_API_PASSWORD'
+};
+
+async function getBullhornSession() {
+    try {
+        // Step 1 & 2 are combined for a non-interactive flow using password grant
+        // Note: For user-facing apps, use the authorization_code grant.
+        // For server-to-server, password grant is common.
+        console.log('Step 1: Getting Access Token...');
+        const tokenResponse = await fetch(`${config.authUrl}/token?grant_type=password&client_id=${config.clientId}&client_secret=${config.clientSecret}&username=${config.username}&password=${config.password}`, {
+            method: 'POST',
+        });
+
+        if (!tokenResponse.ok) {
+            throw new Error(`Failed to get access token: ${tokenResponse.statusText}`);
+        }
+
+        const tokenData = await tokenResponse.json();
+        const accessToken = tokenData.access_token;
+        console.log('Access Token received.');
+
+        // Step 3: Login to get BhRestToken and REST URL
+        console.log('Step 2: Logging in to get session token...');
+        const loginUrl = `${config.apiUrl}/login?version=*&access_token=${accessToken}`;
+        const loginResponse = await fetch(loginUrl, { method: 'POST' });
+
+        if (!loginResponse.ok) {
+            throw new Error(`Failed to log in: ${loginResponse.statusText}`);
+        }
+        
+        const loginData = await loginResponse.json();
+        console.log('Login successful. Session is active.');
+
+        return {
+            BhRestToken: loginData.BhRestToken,
+            restUrl: loginData.restUrl
+        };
+
+    } catch (error) {
+        console.error('Authentication failed:', error);
+        throw error;
+    }
+}
+
+// Example usage:
+// getBullhornSession().then(session => console.log(session));
+```
+
+## 2. Core Entities for Payroll Workflow
+
+The process of creating a timecard involves several interconnected entities. Understanding their relationships is key.
+
+### 2.1. Candidate
+
+The `Candidate` entity represents a person in your Bullhorn system. They are the ones performing the work.
+
+**Key Fields:**
+-   `id`: The unique Bullhorn ID for the candidate.
+-   `firstName`, `lastName`: Name.
+-   `email`, `phone`: Contact information.
+-   `status`: (e.g., 'New Lead', 'Actively Looking', 'Placed').
+-   `owner`: The user who owns the candidate record.
+-   `customText1`...`customText40`: Custom fields for additional data.
+
+**Node.js: Query a Candidate by Email**
+```javascript
+async function findCandidateByEmail(session, email) {
+    const { restUrl, BhRestToken } = session;
+    const fields = 'id,firstName,lastName,email,status';
+    // Use a 'where' clause for searching. Note the single quotes around the email.
+    const url = `${restUrl}search/Candidate?query=email:'${email}'&fields=${fields}`;
+
+    const response = await fetch(url, {
+        headers: { 'BhRestToken': BhRestToken }
+    });
+
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    
+    const data = await response.json();
+    return data.data[0]; // The search endpoint returns an array
+}
+```
+
+### 2.2. JobOrder
+
+A `JobOrder` represents a specific job opening at a client company.
+
+**Key Fields:**
+- `id`: The unique ID for the job.
+- `title`: The job title.
+- `clientCorporation`: A to-one association to the `ClientCorporation` entity.
+- `status`: (e.g., 'Open', 'Filled', 'Cancelled').
+- `startDate`, `endDate`: The duration of the job.
+
+### 2.3. Placement
+
+The `Placement` is the most critical entity in this workflow. **It is the record that connects a specific `Candidate` to a specific `JobOrder`**. It contains the financial details of the assignment.
+
+**Key Fields:**
+-   `id`: The unique ID for the placement.
+-   `candidate`: A to-one association to the `Candidate`.
+-   `jobOrder`: A to-one association to the `JobOrder`.
+-   `dateBegin`, `dateEnd`: The start and end dates of the assignment.
+-   `status`: (e.g., 'Submitted', 'Approved', 'Completed').
+-   `payRate`: The rate the candidate is paid per hour/day/year.
+-   `billRate`: The rate the client is billed per hour/day/year.
+-   `employmentType`: (e.g., 'Contract', 'Permanent').
+
+**Node.js: Find a Candidate's Active Placement**
+```javascript
+async function findActivePlacementForCandidate(session, candidateId) {
+    const { restUrl, BhRestToken } = session;
+    const fields = 'id,jobOrder,dateBegin,payRate,billRate';
+    const query = `candidate.id=${candidateId} AND status='Approved'`; // Find approved, active placements
+    const url = `${restUrl}search/Placement?query=${query}&fields=${fields}`;
+    
+    const response = await fetch(url, {
+        headers: { 'BhRestToken': BhRestToken }
+    });
+
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+    const data = await response.json();
+    // A candidate might have multiple placements, you may need logic to find the correct one
+    return data.data[0];
+}
+```
+
+### 2.4. Timecard
+
+A `Timecard` acts as a header or a container for a specific work period (usually a week). It does **not** contain the actual hours worked.
+
+**Key Fields:**
+-   `id`: The unique ID for the timecard header.
+-   `candidate`: Association to the `Candidate`.
+-   `placement`: Association to the `Placement`.
+-   `weekEndDate`: The date of the last day of the work week (e.g., a Sunday).
+-   `status`: (e.g., 'New', 'Submitted', 'Approved', 'Processed').
+-   `comments`: Any notes related to the timecard.
+
+### 2.5. TimecardTime (Timecard Entry)
+
+This is the "line item" of a `Timecard`. Each `TimecardTime` record represents the hours worked on a specific day for a specific pay type.
+
+**Key Fields:**
+-   `id`: The unique ID for this time entry.
+-   `timecard`: **Crucial association** to the parent `Timecard` record.
+-   `day`: A number representing the day of the week (e.g., 1 for Monday, 2 for Tuesday...). The exact mapping can vary; check your Bullhorn configuration.
+-   `hours`: The number of hours worked.
+-   `earnCode`: Association to an `EarnCode` entity (see below).
+-   `payRate`, `billRate`: The rates for this specific entry. These are often inherited from the `Placement` but can be overridden.
+
+### 2.6. EarnCode
+
+An `EarnCode` defines the type of pay. This allows you to differentiate between regular hours, overtime, holiday pay, etc.
+
+**Key Fields:**
+- `id`: The unique ID.
+- `title`: (e.g., 'Regular', 'Overtime', 'Holiday').
+- `type`: The type of code.
+
+You will need the `id` of the appropriate `EarnCode` when creating `TimecardTime` entries.
+
+## 3. The Timecard Insertion Process
+
+Creating a timecard in Bullhorn is a multi-step process. You cannot create a timecard and its time entries in a single API call.
+
+1.  **Gather IDs**: Find the `id` for the `Candidate` and their active `Placement`.
+2.  **Create the Timecard Header**: Send a `PUT` request to the `entity/Timecard` endpoint to create the main record for the week.
+3.  **Capture the New Timecard ID**: The response from step 2 will contain the `id` of the newly created `Timecard`.
+4.  **Create TimecardTime Entries**: For each day worked, send a separate `PUT` request to the `entity/TimecardTime` endpoint. In the body of each request, you must associate it with the `timecard.id` you received in step 3.
+
+### Mermaid.js Diagram: Timecard Insertion Flow
+
+```mermaid
 sequenceDiagram
-    participant Client
-    participant Bullhorn_Auth
-    participant Bullhorn_REST
-    Client->>Bullhorn_Auth: 1. GET /loginInfo?username={API_User}
-    Bullhorn_Auth-->>Client: Data Center URL ({DC})
-    Client->>Bullhorn_Auth: 2. GET /oauth/authorize (w/ Credentials) [span_18](start_span)[span_18](end_span)[span_30](start_span)[span_30](end_span)
-    Bullhorn_Auth-->>Client: Authorization Code ({authCode}) [span_19](start_span)[span_19](end_span)[span_31](start_span)[span_31](end_span)
-    Client->>Bullhorn_Auth: 3. POST /oauth/token (w/ {authCode}) [span_20](start_span)[span_20](end_span)[span_32](start_span)[span_32](end_span)
-    Bullhorn_Auth-->>Client: Access Token / Refresh Token [span_21](start_span)[span_21](end_span)[span_33](start_span)[span_33](end_span)
-    Client->>Bullhorn_REST: 4. POST /login (w/ Access Token) [span_22](start_span)[span_22](end_span)[span_34](start_span)[span_34](end_span)
-    Bullhorn_REST-->>Client: BhRestToken + restUrl [span_23](start_span)[span_23](end_span)[span_35](start_span)[span_35](end_span)
+    participant YourApp as Your Application
+    participant BullhornAPI as Bullhorn REST API
 
-C. API Governance, Rate Limits, and Performance Implications
-Every developer application must obtain a unique partner API key from Bullhorn, which allows Bullhorn customers to manage and control application usage individually.
-Bullhorn strictly enforces usage limits to ensure system stability. These limits vary dramatically based on the customer’s edition, a crucial factor when planning high-volume transactional integrations like payroll time card insertion.
-| Edition | Max Concurrent Sessions | Total Daily Calls | Max Calls Per Minute |
-|---|---|---|---|
-| Corporate Edition | Up to 25 | 100,000 | 700 |
-| Enterprise Edition | Up to 50 | 2,000,000 | 1,500 |
-The disparity between the editions implies that any system designed for routine, high-volume batch processing of associate time entries must utilize the Enterprise Edition. Attempting to process large payroll batches using the Corporate Edition's limit of 100,000 calls per day would severely constrain operational throughput and increase the likelihood of encountering 429 "Too Many Requests" errors, necessitating sophisticated error handling and throttling mechanisms.
-II. Mapping Core Entities for Payroll Integration
-In the Bullhorn ecosystem, the individual whose time is being tracked—referred to in the query as the "associate"—is represented primarily by two linked entities: the Candidate (identity) and the Placement (the active assignment).
-A. The Hierarchical Relationship: Candidate, Placement, and Associate Identity
-Entities are the core data types within the Bullhorn system, capturing essential staffing concepts such as Candidate, JobOrder, and Placement.
-The Candidate entity represents the fundamental identity of the potential employee or contractor, holding their personal details, work history, and primary employment information. Conversely, the Placement entity is the record of a successfully completed job assignment. It serves as the definitive anchor linking the Candidate to the specific job, contact, and, most critically for payroll, the financial terms and time tracking data. A successful time card insertion requires a valid ID from an active Placement.
-B. The Candidate Entity: Identity and Employment Classification
-The Candidate record houses the foundational information required for tax and core employment classification. These fields are essential for setting up the associate in any downstream payroll system .
-Candidate Entity Key Payroll-Related Fields
-| Field Name | Type | Payroll Relevance | Not Null (X) |
-|---|---|---|---|
-| id | Integer | Unique identifier for the Candidate (Associate). | X |
-| employeeType | String (30) | Candidate’s employment classification (e.g., 1099 or W2). | X |
-| payrollClientStartDate | Timestamp | Date the employee was first on payroll at the staffing company. |  |
-| payrollStatus | String | Indicates if the Candidate is currently active on payroll. |  |
-| ssn | String (18) | Candidate's Social Security Number . |  |
-The employeeType field is a required identifier defining the contractual nature of the worker (e.g., 1099 or W2). The payrollClientStartDate provides the date of first payroll activity, an important marker for system integration. The payrollStatus field indicates the candidate's current eligibility for payroll processing. The architecture dictates that the ability to submit time card data is conditional not just on the Candidate's existence but also on their being linked to an active assignment. Therefore, verifying the payrollStatus and ensuring linkage to a Placement ID must precede any attempt to insert time data.
-C. The Placement Entity: The Assignment and Financial Anchor
-The Placement entity is the operational hub for payroll calculations and time tracking, acting as the assignment anchor for the Candidate. Bullhorn has evolved the Placement entity into a "Generic Entity," permitting extensibility comparable to the Candidate entity .
-Placement Entity Key Payroll-Related Fields (Assignment Anchor)
-| Field Name | Type | Payroll Relevance | Not Null (X) |
-|---|---|---|---|
-| id | Integer | Unique identifier for the Placement/Assignment. | X |
-| payRate | BigDecimal | Standard compensation rate. | X |
-| payRateUnit | String (20) | Unit of compensation (per hour/annum). | X |
-| overtimeRate | BigDecimal | Rate for overtime work. |  |
-| payGroup | String | Frequency with which the placement is paid. |  |
-| dateBegin | Timestamp | Placement start date. | X |
-| payrollSyncStatus | To-one association | Sync status with the payroll provider. |  |
-| timeCard | TimeCard | Timecards associated with this Placement. | Not supported in this release  |
-These fields define the compensation structure, including payRate, payRateUnit, and overtimeRate. The dateBegin and payGroup fields establish the payroll validity and cycle frequency.
-A critical finding is that while the Placement schema logically includes fields like timeCard, timecardExpenses, and timecardTimes, the Bullhorn REST API documentation explicitly marks these as "Not supported in this release". This technical status confirms that transactional time data insertion cannot be performed using standard REST entity manipulation calls against the Placement entity.
-Furthermore, the extensive customization options available on the Placement record, including up to 30 custom text fields and 30 custom dropdowns , are essential for integrating complex payroll requirements. These custom fields (assignmentCustomText1 - 30) can be mapped to external systems to capture specific payroll metadata, such as cost centers or internal client job codes, which are often non-standard but mandatory components of time card submissions.
-D. Payroll Provider Entities
-The Bullhorn structure also includes entities tailored for payroll provider data integration, such as the Deduction entity, which stores information like the provider’s identifier (id), deduction code, and description . These provider exports are organized around defined pay periods, using key timestamps such as periodStartDate and periodEndDate. The time data inserted must conform precisely to these period boundaries for successful batch processing .
-III. Critical Architectural Assessment: Time Card Integration Pathway
-Given the explicit status of time card entities within the primary REST API, the transactional integration pathway mandates a shift away from standard entity manipulation toward specialized services integrated with the Bullhorn Time & Expense (BTE) platform.
-A. The Status of Native TimeCard Entities in the REST API
-The explicit notation in the Placement entity reference that timeCard and associated time entry fields are "Not supported in this release" provides a definitive architectural constraint. This means that the standard Bullhorn REST API operations—such as POST {corptoken}/entity/TimeCard—cannot be used for creating or updating time entries. This forces developers to pursue alternative, specialized integration paths.
-B. Requirement for Bullhorn Time & Expense (BTE) Integration
-Programmatic insertion of time card data requires the use of the specialized Bullhorn Timesheet API, which interacts directly with the Bullhorn Time & Expense (BTE) platform . BTE, often integrated via PeopleNet technologies , is responsible for managing complex time and labor rules, approvals, and subsequent data translation into Payable and Billable charges within the Bullhorn ATS .
-Crucially, setting up access to this specialized Timesheet API is not a self-service process; it demands mandatory engagement with Bullhorn Support . Developers must provide the name of the third party, along with necessary Redirect URIs and Terms of Service agreements, to receive the required API details and credentials .
-C. Overview of BTE Time Capture Methods
-The specialized API serves as a programmatic interface to BTE’s internal data ingestion methods, which handle administrative and bulk data entry . Bullhorn Time & Expense supports several methods for collecting time, including Web Time Entry (WTE) and Rapid Time Entry (RTE).
-The most relevant internal BTE mechanism for high-volume programmatic integration is the Transaction Uploader. This tool allows administrators to upload candidate time, units, or hours in batch formats via spreadsheets. The existence of this batch import capability strongly suggests that the specialized Timesheet API endpoint is designed to accept similar high-volume, transactional payloads for time data insertion. By routing time through BTE, Bullhorn ensures that complex business logic—including pay rule validation and compliance checks—is applied consistently, preventing external integrations from bypassing critical payroll integrity measures.
-IV. Programmatic Insertion Requirements and Data Structure
-Successful time card data insertion via the specialized BTE API hinges on precise data formatting, association with an active Placement, and adherence to specific field requirements established in the BTE system.
-A. Defining the Time Card Payload Requirements
-The transactional payload must fundamentally link the time entry to the corresponding assignment in the system. The essential linkage is the active Placement ID (or Assignment Number), as time entries are tracked as events associated with the assignment, not the Candidate's static identity. The data payload must specify the transactional details, including the time granularity (hours, units, or dollars) and must align with the periodStartDate and periodEndDate of the pay cycle defined by the Placement’s payGroup .
-B. The Role of Customer Required Fields (CRFs)
-A critical factor for validation is the status of Customer Required Fields (CRFs). CRFs are configurable text fields or lists of values used to capture client-specific data, such as Purchase Orders or specific cost centers, on the timesheet.
-If CRFs are enabled and designated as required in both Bullhorn ATS and Bullhorn Time & Expense , the programmatic insertion payload must include valid data for these mandatory fields. Failure to satisfy a required CRF will result in the rejection of the time entry by the BTE validation engine. Furthermore, for time capture mechanisms that are non-interactive, such as clock placements (which can be analogous to programmatic API insertion), a default CRF must be assigned to the Placement, confirming that CRF handling is integral to the integration design.
-C. Prerequisites and Entitlements
-The API user account must be provisioned with sufficient access rights. For general entity creation, the user requires the CREATE entitlement . For BTE operations, this translates into appropriate administrative or View/Edit access within the Bullhorn Time & Expense Role settings.
-Prior to transmitting transactional time data, the system must perform comprehensive pre-validation. It is a best practice that all Placement data—including financial rates, assignment dates, and the payrollSyncStatus—be confirmed as correct and approved in the ATS, as this information flows into BTE to establish the necessary context for time processing.
-The integration architecture suggests that time card processing is a critical, atomic transaction managed by BTE. The process, labeled internally as a "Closed Time Sync: BTE-->BH," creates a distinct batch event tied to the Placement for every submission . This means the insertion payload should be treated as a single, indivisible transaction; if any component (such as a missing CRF or an expired Placement date) is invalid, the entire time entry is likely to be rejected. Designing the integration with comprehensive error handling and validation logic is therefore essential to guarantee transactional reliability.
-V. Implementation Blueprint and Advanced Recommendations
-The implementation blueprint requires a continuous focus on security, token longevity, and robust error detection mechanisms, especially given the rate limits on API calls.
-A. Session and Token Management Blueprint
-The operational process starts with the OAuth 2.0 flow to secure the REST session token (BhRestToken) and culminates in the use of the specialized BTE Timesheet API endpoint.
-| Step | Purpose | Request Type | Endpoint Segment | Key Output |
-|---|---|---|---|---|
-| 1 | Locate DC URL | GET | rest.bullhornstaffing.com/rest-services/loginInfo | Data Center Identifier ({DC})  |
-| 2 | Obtain Auth Code | GET | auth-{DC}.bullhornstaffing.com/oauth/authorize | Authorization Code ({authCode})  |
-| 3 | Obtain Access Token | POST | auth-{DC}.bullhornstaffing.com/oauth/token | Access Token, Refresh Token  |
-| 4 | Establish REST Session | POST | rest-{DC}.bullhornstaffing.com/rest-services/login | BhRestToken, restUrl  |
-| 5 | Time Card Insertion | POST | Specialized BTE Timesheet API endpoint | Transaction Status |
-The refresh token management strategy is key for long-term integration stability. Since the refresh token expires only after it is used once successfully to generate a new access token, developers should leverage the latest refresh token for subsequent sessions to avoid the need to repeat the authorization code retrieval step (Step 2), which often requires manual user intervention or credential submission.
-B. Time Card Insertion Architectural Flow
-This diagram illustrates the mandatory separation between core ATS entity management and the transactional time data ingestion via Bullhorn Time & Expense (BTE).
-graph TD
-    A --> B{Placement ID, PayGroup, PayRate Confirmed};
-    B --> C;
-    C --> D{Programmatic POST to Specialized BTE API};
-    D --> E;
-    E -- Validation Success --> F;
-    F --> G;
-    G --> H
-    E -- Validation Failure --> I
+    YourApp->>BullhornAPI: GET /search/Placement?query=candidate.id=...
+    BullhornAPI-->>YourApp: Returns Placement ID, Candidate ID, JobOrder ID
 
-C. Monitoring and Troubleshooting
-In high-volume payroll scenarios, efficient error handling is essential, particularly for rate limit violations. The integration should be prepared to handle HTTP 429 responses ("Too Many Requests") by implementing throttling mechanisms or dynamically adjusting the size and frequency of batch submissions to remain within the established call limits of the licensed edition.
-For troubleshooting synchronization issues between the time entries and the payroll/billing systems, the BTE Placement Viewer is an invaluable administrative tool . Specifically, the "Closed Time Sync: BTE-->BH" tab provides a detailed record of every time the placement has been synced to Pay & Bill, allowing administrators to trace batch events, identify insertion failures, and verify that the transactional time card data successfully flowed from BTE back to the core Bullhorn billing system .
-VI. Conclusions and Recommendations
-The analysis of Bullhorn documentation reveals a distinct architectural separation between core entity management and transactional time processing, necessitating a two-pronged approach for programmatic time card insertion.
- * Mandatory Specialized API Use: Standard Bullhorn REST API entity operations are insufficient for inserting time card data because the required entities (TimeCard, TimecardTimes) are explicitly marked as unsupported. The sole validated pathway is through the specialized Bullhorn Timesheet API, which operates in conjunction with the Bullhorn Time & Expense (BTE) platform . Integration development must start with contacting Bullhorn Support to acquire the unique credentials and access details for this specialized endpoint .
- * Placement Entity as the Transactional Anchor: The success of time card insertion depends entirely on the Placement entity. The payload must be validated against the Placement’s ID, effective dates (dateBegin), financial terms (payRate, payRateUnit), and pay cycle (payGroup). Prior confirmation that the Placement has successfully synced to the payroll provider (payrollSyncStatus) is crucial to avoid downstream processing failures.
- * High-Volume Scaling Requires Enterprise Licensing: For agencies planning high-volume or frequent payroll integrations, the restrictive rate limits of the Corporate Edition (100,000 calls per day) are likely insufficient. Utilizing the Enterprise Edition, which allows up to 2,000,000 calls per day and higher per-minute throughput, is a prerequisite for maintaining payroll efficiency and meeting transactional demands .
- * Data Integrity through Pre-Validation: The transactional nature of BTE processing dictates that the insertion mechanism must implement robust checks for all mandatory fields, including any configured Customer Required Fields (CRFs). Any missing or invalid data, especially custom fields defined as required on the timesheet, will cause the entire time card batch to be rejected during BTE validation.
+    YourApp->>BullhornAPI: PUT /entity/Timecard
+    Note over YourApp,BullhornAPI: Body: { candidate: {id: ...}, placement: {id: ...}, weekEndDate: '...' }
+    BullhornAPI-->>YourApp: Returns { changedEntityId: newTimecardID }
+
+    YourApp->>BullhornAPI: PUT /entity/TimecardTime (Day 1)
+    Note over YourApp,BullhornAPI: Body: { timecard: {id: newTimecardID}, day: 1, hours: 8, earnCode: {id: ...} }
+    BullhornAPI-->>YourApp: Response for Day 1
+
+    YourApp->>BullhornAPI: PUT /entity/TimecardTime (Day 2)
+    Note over YourApp,BullhornAPI: Body: { timecard: {id: newTimecardID}, day: 2, hours: 8, earnCode: {id: ...} }
+    BullhornAPI-->>YourApp: Response for Day 2
+
+    YourApp->>BullhornAPI: PUT /entity/TimecardTime (Day 3)
+    Note over YourApp,BullhornAPI: Body: { timecard: {id: newTimecardID}, day: 3, hours: 8, earnCode: {id: ...} }
+    BullhornAPI-->>YourApp: Response for Day 3
+```
+
+### Node.js 22: Full Timecard Insertion Code
+
+This function ties all the concepts together.
+
+```javascript
+// Assumes you have a 'session' object from the getBullhornSession() function
+// Assumes you have the ID for the 'Regular' EarnCode
+
+async function createTimecardForPlacement(session, placementId, weekEndDate, dailyHours, regularEarnCodeId) {
+    const { restUrl, BhRestToken } = session;
+
+    // A helper for making authenticated Bullhorn API calls
+    const bullhornFetch = async (endpoint, options = {}) => {
+        const url = `${restUrl}${endpoint}`;
+        const defaultOptions = {
+            headers: {
+                'BhRestToken': BhRestToken,
+                'Content-Type': 'application/json'
+            }
+        };
+        const response = await fetch(url, { ...defaultOptions, ...options });
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`Bullhorn API Error on ${endpoint}: ${response.statusText} - ${errorBody}`);
+        }
+        return response.json();
+    };
+
+    try {
+        // Step 1: Get Placement details (we need the candidate.id from it)
+        console.log(`Fetching details for Placement ID: ${placementId}`);
+        const placementData = await bullhornFetch(`entity/Placement/${placementId}?fields=candidate`);
+        const candidateId = placementData.data.candidate.id;
+        if (!candidateId) {
+            throw new Error(`Could not find a candidate associated with Placement ${placementId}`);
+        }
+        console.log(`Found Candidate ID: ${candidateId}`);
+        
+        // Step 2: Create the Timecard header
+        // NOTE: Bullhorn uses PUT for both create and update.
+        // For creation, you omit the entity ID from the URL.
+        console.log(`Creating Timecard header for week ending ${weekEndDate}...`);
+        const timecardBody = {
+            candidate: { id: candidateId },
+            placement: { id: placementId },
+            weekEndDate: weekEndDate,
+            status: 'New' // Initial status
+        };
+
+        const timecardResponse = await bullhornFetch('entity/Timecard', {
+            method: 'PUT',
+            body: JSON.stringify(timecardBody)
+        });
+
+        const newTimecardId = timecardResponse.changedEntityId;
+        if (!newTimecardId) {
+            throw new Error('Failed to create Timecard header or get its ID.');
+        }
+        console.log(`Successfully created Timecard with ID: ${newTimecardId}`);
+
+        // Step 3: Create a TimecardTime entry for each day with hours
+        console.log('Creating daily TimecardTime entries...');
+        const timeEntriesPromises = [];
+
+        for (const [day, hours] of Object.entries(dailyHours)) {
+            if (hours > 0) {
+                const timeEntryBody = {
+                    timecard: { id: newTimecardId },
+                    day: parseInt(day, 10), // Ensure day is a number
+                    hours: hours,
+                    earnCode: { id: regularEarnCodeId }
+                };
+
+                console.log(`  - Adding ${hours} hours for day ${day}`);
+                const promise = bullhornFetch('entity/TimecardTime', {
+                    method: 'PUT',
+                    body: JSON.stringify(timeEntryBody)
+                });
+                timeEntriesPromises.push(promise);
+            }
+        }
+        
+        await Promise.all(timeEntriesPromises);
+        console.log('All daily time entries created successfully.');
+
+        return { success: true, timecardId: newTimecardId };
+
+    } catch (error) {
+        console.error('Error in createTimecardForPlacement:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// --- Example Usage ---
+async function main() {
+    try {
+        const session = await getBullhornSession();
+        
+        const PLACEMENT_ID = 12345; // The ID of the candidate's active assignment
+        const REGULAR_EARN_CODE_ID = 1; // The ID for 'Regular' pay type
+        const WEEK_END_DATE = '2023-10-29'; // Typically a Sunday
+        
+        const hoursWorked = {
+            1: 8, // Monday
+            2: 8, // Tuesday
+            3: 8, // Wednesday
+            4: 8, // Thursday
+            5: 8, // Friday
+            6: 0, // Saturday
+            7: 0, // Sunday
+        };
+
+        const result = await createTimecardForPlacement(
+            session,
+            PLACEMENT_ID,
+            WEEK_END_DATE,
+            hoursWorked,
+            REGULAR_EARN_CODE_ID
+        );
+
+        console.log('Final Result:', result);
+
+    } catch (error) {
+        console.error('Main process failed.');
+    }
+}
+
+// main(); // Uncomment to run
+```
+
+## 4. Other Related Payroll Entities
+
+While the `Placement` -> `Timecard` -> `TimecardTime` flow is the most common, other entities are used for more complex payroll scenarios like expenses and adjustments.
+
+### 4.1. PayableCharge & BillableCharge
+
+These entities are used to record expenses, bonuses, commissions, or other financial transactions that aren't based on hourly work.
+
+-   **`PayableCharge`**: Money that needs to be **paid** to the candidate.
+-   **`BillableCharge`**: Money that needs to be **billed** to the client.
+
+They are often created in pairs but don't have to be. For example, a non-reimbursable expense might only have a `BillableCharge`.
+
+**Key Fields:**
+- `id`: The charge ID.
+- `placement`: The `Placement` this charge is associated with.
+- `transactionDate`: When the charge occurred.
+- `quantity`, `rate`: The amount of the charge (e.g., quantity=50, rate=1 for a $50 expense).
+- `description`: A text description of the charge.
+- `billable`, `payable`: Boolean flags.
+
+These charges are typically processed alongside timecards to generate a complete invoice for the client and a full paystub for the candidate.
+
+## Conclusion
+
+Successfully integrating with Bullhorn's API for payroll requires a solid understanding of its entity relationships. The `Placement` entity is the central hub, connecting the `Candidate` and `JobOrder` and providing the financial context for `Timecard` creation. The process is granular, requiring separate API calls to first create the `Timecard` header and then populate it with `TimecardTime` entries. By following the structured approach outlined in this document, developers can build robust and reliable integrations.
+
+For the most up-to-date and exhaustive list of all entity fields, always refer to the official [Bullhorn REST API Reference](https://bullhorn.github.io/rest-api-docs/).
