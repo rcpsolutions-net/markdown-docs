@@ -1,7 +1,7 @@
 ## 🔎 Finding a Specific Placement from Timesheet Data
 *Prompted and edited by Lawrence Ham*
 
-- API Extraction: ****Examples created for Bullhorn API calls.***
+- API Extraction: **Examples created for Bullhorn API calls.**
 - Database Extraction: ***SQL examples to be created when database schema can be examined.***
 
 
