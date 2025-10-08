@@ -1,5 +1,3 @@
----
-
 # Meeting Summary: OCR Timecard Automation Demo & Feedback
 
 **Objective:** To review a new OCR/AI tool for automating manual timecard entry and gather feedback from the payroll team to guide the next development steps.
