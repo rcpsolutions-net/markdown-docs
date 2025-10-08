@@ -1,5 +1,5 @@
 ## 🔎 Finding a Specific Placement from Timesheet Data
-### Prompted and edited by Lawrence Ham
+*Prompted and edited by Lawrence Ham*
 
 When a timesheet only provides an associate's name and a client's name, you must perform a series of queries to pinpoint the exact, active `Placement`. This process acts like a funnel, narrowing down the possibilities at each step.
 
