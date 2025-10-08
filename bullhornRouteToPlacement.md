@@ -15,7 +15,7 @@ When a timesheet only provides an associate's name and a client's name, you must
 ```mermaid
 graph TD
     A[📄 Timesheet Info Associate: Jane Doe, Client: Global Tech Inc] --> B{Has placementId?};
-    B -- Yes --> C[🎯 Direct Lookup: GET /entity/Placement/{id}];
+    B -- Yes --> C[🎯 Direct Lookup: GET /entity/Placement/{id?}];
     B -- No --> D[🔍 Step 1: Search Candidates query=name:'Jane Doe'];
     A --> D;
     D --> E[Found Candidate IDs e.g., [123, 456]];
