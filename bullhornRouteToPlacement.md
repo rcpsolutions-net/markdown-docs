@@ -18,10 +18,10 @@ graph TD
     B -- Yes --> C[🎯 Direct Lookup: GET /entity/Placement/id];
     B -- No --> D[🔍 Step 1: Search Candidates query=name:'Jane Doe'];
     A --> D;
-    D --> E[Found Candidate IDs e.g., \(123, 456\);
+    D --> E[Found Candidate IDs e.g., 123, 456];
     A --> F[🔍 Step 2: Search Clients query=name:'Global Tech Inc.'];
-    F --> G[Found Client IDs \(88, 99\)];
-    E --> H[🧩 Step 3: Correlate Placements query=candidate.id IN [123,456] AND jobOrder.clientCorporation.id IN [88,99] AND status:'Approved'];
+    F --> G[Found Client IDs: 88, 99];
+    E --> H[🧩 Step 3: Correlate Placements query=candidate.id IN 123,456 AND jobOrder.clientCorporation.id IN 88,99 AND status:'Approved'];
     G --> H;
     H --> I{Analyze Results};
     I -- 0 Found --> J[❌ No Match Found];
