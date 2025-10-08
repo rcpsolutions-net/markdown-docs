@@ -3,7 +3,7 @@
 # 📢 Bullhorn API Integration: Candidates, Timecards, and Payroll
 *Prompted and edited by Lawrence Ham*
 
-*Note: Timesheet/punch information will most likely have to INSERTED through the Bullhorn API. However, to minimize Bullhorn API use, the Partners BH-DB-Mirror can be utilized directly for the majority of our queries*
+#### Note: Timesheet/punch information will most likely have to INSERTED through the Bullhorn API. However, to minimize Bullhorn API use, the Partners BH-DB-Mirror can be utilized directly for the majority of our queries
 
 
 ---
@@ -11,7 +11,8 @@
 
 ## ⚙️ 1. Bullhorn API Fundamentals
 
-> Before interacting with specific entities, it's crucial to understand the API's structure and authentication mechanism. (Their "entity" based REST implementation is very similiar to Adapt's old SOAP implementation. Also the entity names seem to match Adapt's, so this is looking a lot more familiar than expected. *Full Circle with Partners: I was tasked to hack Adapt's broken SOAP API for Partners almost 10 years ago for data extraction. That was hard, so now this is easy.*)
+> Before interacting with specific entities, it's crucial to understand the API's structure and authentication mechanism.
+> (Their "entity" based REST implementation is very similiar to Adapt's old SOAP implementation. Also the entity names seem to match Adapt's, so this is looking a lot more familiar than expected. *Full Circle with Partners: I was tasked to hack Adapt's broken SOAP API for Partners almost 10 years ago for data extraction. That was hard, so now this is easy.*)
 
 ### 🔗 1.1. API Structure & Endpoint
 
