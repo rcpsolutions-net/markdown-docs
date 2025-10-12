@@ -1,11 +1,10 @@
 
 # 📂 Bullhorn Database Schema Visualization
-
 *prompted and edited by Lawrence Ham*
 
 This document provides a high-level overview and visualization of the main database tables based on the provided schema. The goal is to illustrate the core relationships that govern the staffing, placement, and billing processes.
 
-Given the extensive number of tables, this analysis focuses on the central workflow: from the `Client` and `Candidate` to the `JobOrder`, through the `Placement`, and finally to financial transactions like `Timesheet` and `BillableCharge`/`PayableCharge`.
+Given the extensive number of tables, this analysis focuses on the **central workflow**: from the `Client` and `Candidate` to the `JobOrder`, through the `Placement`, and finally to financial transactions like `Timesheet` and `BillableCharge`/`PayableCharge`.
 
 ## 📊 Core Entity Relationship Diagram (ERD)
 
