@@ -1,7 +1,7 @@
 # 🌐 VeloCloud Orchestrator Configuration Guide
 ## Connecting Printers at Remote Locations to Cloud-Hosted Server
 
-##### Document prompted and edited by Lawrence Ham
+##### Document prompted and edited by Lawrence Ham. IP addresses and configurations are for example only.
 
 ---
 
