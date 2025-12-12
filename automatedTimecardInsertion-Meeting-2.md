@@ -81,7 +81,7 @@ graph TD
     D -- "User Clicks Approve ✅" --> E[Push Data to BTE API];
     E --> F[Push PDF to Client Folder for Archive 📂];
     E --> G[BTE Processes Payroll];
-    F --> H[System UI Completed Queue (Audit Log) 📜];
+    F --> H[System UI Completed Queue Audit Log 📜];
     G --> I[Bullhorn Records Approved Hours];
 ```
 
