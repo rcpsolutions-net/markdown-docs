@@ -75,13 +75,14 @@
 
 ```mermaid
 graph TD
-    A[Incoming Timesheet PDF/Scan] --> B{AI + OCR + SQL Matching};
-    B --> C[System UI: Work Queue (User A, User B...) 👀];
-    C --> D{User Review & Validation};
-    D -- "User Clicks 'Approve/Finalize' ✅" --> E[Push Data to BTE API];
+    A[Incoming Timesheet PDF Scan] --> B{AI + OCR + SQL Matching};
+    B --> Z[System UI Work Queue (User A and User B...) 👀];
+    Z --> C[Route to user based on client addressing Sandras concerns]
+    C --> D{User Review and Validation};
+    D -- "User Clicks Approve ✅" --> E[Push Data to BTE API];
     E --> F[Push PDF to Client Folder for Archive 📂];
     E --> G[BTE Processes Payroll];
-    F --> H[System UI: Completed Queue (Audit Log) 📜];
+    F --> H[System UI Completed Queue (Audit Log) 📜];
     G --> I[Bullhorn Records Approved Hours];
 ```
 
