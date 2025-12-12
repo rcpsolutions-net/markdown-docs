@@ -76,8 +76,7 @@
 ```mermaid
 graph TD
     A[Incoming Timesheet PDF Scan] --> B{AI + OCR + SQL Matching};
-    B --> Z[System UI Work Queue (User A and User B...) 👀];
-    Z --> C[Route to user based on client addressing Sandras concerns]
+    B --> C[System UI Work Queue routes to assigned processor by client id, etc. 👀];    
     C --> D{User Review and Validation};
     D -- "User Clicks Approve ✅" --> E[Push Data to BTE API];
     E --> F[Push PDF to Client Folder for Archive 📂];
