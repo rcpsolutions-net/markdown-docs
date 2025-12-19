@@ -44,11 +44,11 @@ graph TD
 *   **Auto-Update:** Script a "phone home" mechanism to pull the latest tax tables/W2 schemas.
 *   **Security Scanning:** Pass the marketplace's automated CVE (Common Vulnerabilities and Exposures) scans.
 
-### 2. Printing Strategy (The "Local" Bridge) 🖨️
+### 2. Printing Strategy (The "VPN" Bridge) 🖨️
 Since cloud servers can't "see" local USB/Network printers:
 1.  **Server:** Your software generates a secure PDF/Print Job and stores it in an encrypted queue.
-2.  **Agent:** A tiny Python/Go binary runs on the user's local PC.
-3.  **Bridge:** The Agent polls the Server API, downloads the job, and sends it to the physical printer.
+2.  **VPN:** The server tries to contact the networked printer.
+3.  **Device:** physical printer receives hand-off
 
 ### 3. Monetization Models 💸
 
