@@ -24,7 +24,7 @@ At this volume, we move away from "Single-Threaded" processing to a **Parallel B
 
 ```mermaid
 graph TD
-    A[Branch Uploads: 10k Cards/wk] -->|PDF/JPG| B(RabbitMQ: timesheet_inbound)
+    A[Branch Uploads: 10k Cards/wk] -->|PDF/JPG| B(Pinpoint: timesheet_inbound)
     
     subgraph AI_Processing_Layer [AI Processing Layer]
     B --> C{Volume Check}
@@ -35,8 +35,8 @@ graph TD
     E --> F
     end
 
-    F --> G{Structured JSON}
-    G --> H[Bullhorn Matching Engine]
+    F --> G{Structured JSON or EXCEL}
+    G --> H[Pinpoint Matching Engine]
     
     subgraph Validation_Logic [Validation & Matching]
     H --> I[Match Associate ID]
