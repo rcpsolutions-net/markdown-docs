@@ -65,7 +65,9 @@ graph LR
     style B fill:#8a2be2,stroke:#fff,color:#fff
     style E fill:#00ced1,stroke:#fff,color:#fff
     style F fill:#f08080,stroke:#fff,color:#fff
+    style D fill:#fff9c4,stroke:#fbc02d
 ```
+
 
 ## Fin.
 
