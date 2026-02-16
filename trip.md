@@ -64,8 +64,8 @@ graph LR
 
     style B fill:#8a2be2,stroke:#fff,color:#fff
     style E fill:#00ced1,stroke:#fff,color:#fff
-    style F fill:#f08080,stroke:#fff
-
+    style F fill:#f08080,stroke:#fff,color:#fff
+'''
 
 
 
