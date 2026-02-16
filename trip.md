@@ -1,3 +1,18 @@
+
+graph LR
+    A[Portland, ME] -- "2.5 hrs" --> B{Salem, MA - 2 Nights}
+    B -- "3 hrs" --> C(The Berkshires, MA)
+    C -- "4 hrs" --> D(Finger Lakes, NY)
+    D -- "2.5 hrs" --> E[Niagara Falls, NY]
+    E -- "0.5 hrs" --> F[Buffalo Airport - BUF]
+
+    style B fill:#8a2be2,stroke:#fff,color:#fff
+    style E fill:#00ced1,stroke:#fff,color:#fff
+    style F fill:#f08080,stroke:#fff
+
+
+
+
 🍂 14-Day New England & Niagara Autumn Escape
 This itinerary focuses on your core requirements: a one-day start in Maine, a two-night stay in Salem, and a scenic journey to Niagara Falls—all while keeping your drive times strictly between 6–8 hours max per leg.
 🗺️ The Itinerary
