@@ -1,5 +1,6 @@
 # Lawrence Ham III
 **Senior Full-Stack Architect & Platform Engineer**
+
 📍 Albuquerque, NM (Remote) | 📞 505.573.xxxx | ✉️ lham@netplug.me | 🌐 [rcpsolutions.net](https://rcpsolutions.net)
 
 ---
