@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lawrence Ham — Software Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0f0f0f;
+      --ink-mid: #444;
+      --ink-light: #888;
+      --rule: #e2e2e2;
+      --bg: #fafaf8;
+      --white: #ffffff;
+      --accent: #7A3535;
+      --accent-light: #f5efef;
+      --teal: #1a6b6b;
+      --teal-light: #eaf4f4;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 80px 60px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .header-left h1 {
+      font-family: var(--serif);
+      font-size: 42px;
+      font-weight: 400;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .header-left p {
+      color: var(--ink-mid);
+      font-size: 14px;
+      font-weight: 300;
+      letter-spacing: 0.04em;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--ink-light);
+    }
+
+    .header-right a {
+      color: var(--ink-mid);
+      text-decoration: none;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .header-right a:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── INTRO ── */
+    .intro {
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 0 60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .intro-text h2 {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .intro-text p {
+      color: var(--ink-mid);
+      font-weight: 300;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .skill-pill {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      letter-spacing: 0.03em;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 60px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .section-label span {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── PROJECT CARD ── */
+    .project {
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      padding: 0 60px;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    .project:nth-child(1) { animation-delay: 0.1s; }
+    .project:nth-child(2) { animation-delay: 0.2s; }
+    .project:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .project-title {
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .project-subtitle {
+      font-size: 13px;
+      color: var(--ink-light);
+      font-weight: 300;
+    }
+
+    .project-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+
+    .tag-rcp { background: var(--accent-light); color: var(--accent); }
+    .tag-pinpoint { background: var(--teal-light); color: var(--teal); }
+
+    .project-desc {
+      font-size: 14px;
+      color: var(--ink-mid);
+      font-weight: 300;
+      line-height: 1.8;
+      max-width: 680px;
+      margin-bottom: 32px;
+    }
+
+    /* ── SCREENSHOT GRID ── */
+    .screenshots-main {
+      margin-bottom: 12px;
+    }
+
+    .screenshot-full {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--rule);
+      display: block;
+      overflow: hidden;
+      background: #f0f0f0;
+      cursor: zoom-in;
+      transition: box-shadow 0.3s;
+    }
+
+    .screenshot-full:hover {
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    }
+
+    .screenshot-full img {
+      width: 100%;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .screenshot-full:hover img { transform: scale(1.01); }
+
+    .screenshots-sub {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .screenshot-thumb {
+      border-radius: 6px;
+      border: 1px solid var(--rule);
+      overflow: hidden;
+      background: #f0f0f0;
+      cursor: zoom-in;
+      transition: box-shadow 0.3s;
+    }
+
+    .screenshot-thumb:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .screenshot-thumb img {
+      width: 100%;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .screenshot-thumb:hover img { transform: scale(1.02); }
+
+    .screenshot-caption {
+      font-size: 11px;
+      color: var(--ink-light);
+      letter-spacing: 0.04em;
+      margin-top: 6px;
+      padding-left: 2px;
+    }
+
+    /* ── FEATURE LIST ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--rule);
+    }
+
+    .feature h4 {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .feature p {
+      font-size: 13px;
+      color: var(--ink-light);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── TECH STACK ── */
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .stack-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 3px;
+      background: var(--white);
+      border: 1px solid var(--rule);
+      color: var(--ink-mid);
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 1100px;
+      margin: 0 auto 60px;
+      padding: 0 60px;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 60px 60px;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--ink-light);
+    }
+
+    footer a { color: var(--ink-mid); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 90vh;
+      border-radius: 6px;
+      object-fit: contain;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 24px;
+      right: 32px;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      opacity: 0.7;
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .lightbox-close:hover { opacity: 1; }
+
+    @media (max-width: 768px) {
+      header, .intro, .section-label, .project, .divider, footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      header { flex-direction: column; align-items: flex-start; gap: 24px; }
+      .intro { grid-template-columns: 1fr; gap: 32px; }
+      .features { grid-template-columns: 1fr; }
+      .screenshots-sub { grid-template-columns: 1fr; }
+      .header-left h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>Lawrence Ham</h1>
+      <p>Full-Stack Developer &nbsp;·&nbsp; Albuquerque, NM &nbsp;·&nbsp; RCP Solutions</p>
+    </div>
+    <nav class="header-right">
+      <a href="#rcp">RCP Platform</a>
+      <a href="#pinpoint">Pinpoint AI</a>
+    </nav>
+  </header>
+
+  <!-- INTRO -->
+  <div class="intro">
+    <div class="intro-text">
+      <h2>Building payroll &amp; workforce automation software that processes millions of dollars weekly.</h2>
+      <p>I design and develop full-stack enterprise applications for staffing and payroll operations — from real-time check management dashboards to AI-powered timesheet processing systems. My work sits at the intersection of complex business logic, performance-critical backends, and intuitive operator interfaces.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-pill">Angular 21</div>
+      <div class="skill-pill">Node.js / Fastify</div>
+      <div class="skill-pill">TypeScript</div>
+      <div class="skill-pill">MongoDB</div>
+      <div class="skill-pill">MS-SQL</div>
+      <div class="skill-pill">Socket.io</div>
+      <div class="skill-pill">PDF Generation</div>
+      <div class="skill-pill">AI / OCR Integration</div>
+      <div class="skill-pill">SD-WAN / VeloCloud</div>
+      <div class="skill-pill">Linux / WSL</div>
+    </div>
+  </div>
+
+  <!-- RCP PROJECT -->
+  <div class="section-label"><span>Project 01</span></div>
+
+  <div class="project" id="rcp">
+    <div class="project-header">
+      <div>
+        <div class="project-title">Remote Check &amp; Paystub</div>
+        <div class="project-subtitle">Enterprise payroll distribution platform &nbsp;·&nbsp; v4.2</div>
+      </div>
+      <span class="project-tag tag-rcp">RCP Solutions</span>
+    </div>
+
+    <p class="project-desc">
+      A full-stack payroll management platform used by staffing agencies nationwide to print, distribute, and audit physical checks and paystubs remotely. Handles thousands of checks per week across 85+ branch locations, with real-time status tracking, PDF template management, and multi-level grouping and filtering.
+    </p>
+
+    <!-- Main screenshot -->
+    <div class="screenshots-main">
+      <div class="screenshot-full" onclick="openLightbox(this.querySelector('img').src)">
+        <img src="rcp-live-checks.png" alt="RCP Live Checks Dashboard" loading="lazy">
+      </div>
+      <div class="screenshot-caption">Live Checks dashboard — Week 15, 4,236 checks across 85 branches totalling $2.98M</div>
+    </div>
+
+    <!-- Sub screenshots -->
+    <div class="screenshots-sub">
+      <div>
+        <div class="screenshot-thumb" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="rcp-pdf-editor.jpg" alt="PDF Template Editor" loading="lazy">
+        </div>
+        <div class="screenshot-caption">PDF Template Overlay Editor — pixel-precise field mapping</div>
+      </div>
+      <div>
+        <div class="screenshot-thumb" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="rcp-branch-config.png" alt="Branch Configuration" loading="lazy">
+        </div>
+        <div class="screenshot-caption">Branch/Department configuration — multi-client, multi-device routing</div>
+      </div>
+    </div>
+
+    <!-- Queue Engine screenshot -->
+    <div class="screenshots-main" style="margin-top:12px;">
+      <div class="screenshot-full" onclick="openLightbox(this.querySelector('img').src)" style="background:#0d1117;">
+        <img src="rcp-queue-engine.png" alt="RCP Queue Engine Logs" loading="lazy">
+      </div>
+      <div class="screenshot-caption">RCP-Q-Engine — Linux PM2 process log showing RMQ message ingestion, MongoDB reconnection, printer job lifecycle, and impression confirmation across multiple branch devices</div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <h4>Real-time Operations</h4>
+        <p>Live check status updates across all branches with floating selection windows and persistent cross-session selections.</p>
+      </div>
+      <div class="feature">
+        <h4>PDF Template Engine</h4>
+        <p>Visual overlay editor for mapping dynamic payroll data fields onto existing PDF check templates with pixel-level precision.</p>
+      </div>
+      <div class="feature">
+        <h4>Multi-tenant Architecture</h4>
+        <p>Supports dozens of staffing clients simultaneously, each with isolated branch configs, device assignments, and AD group routing.</p>
+      </div>
+      <div class="feature">
+        <h4>Queue Engine (Linux)</h4>
+        <p>Node.js PM2 worker processes RabbitMQ messages, manages printer job state machines, handles MongoDB reconnection, and confirms impressions per device — running 32+ days continuous uptime.</p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <span class="stack-tag">Angular 21</span>
+      <span class="stack-tag">Node.js</span>
+      <span class="stack-tag">MongoDB</span>
+      <span class="stack-tag">Socket.io</span>
+      <span class="stack-tag">RabbitMQ</span>
+      <span class="stack-tag">PM2</span>
+      <span class="stack-tag">PDF Rendering</span>
+      <span class="stack-tag">Kendo UI</span>
+      <span class="stack-tag">TypeScript</span>
+      <span class="stack-tag">Linux</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PINPOINT PROJECT -->
+  <div class="section-label"><span>Project 02</span></div>
+
+  <div class="project" id="pinpoint">
+    <div class="project-header">
+      <div>
+        <div class="project-title">Pinpoint AI + OCR</div>
+        <div class="project-subtitle">Intelligent timesheet processing system &nbsp;·&nbsp; Partners Personnel</div>
+      </div>
+      <span class="project-tag tag-pinpoint">AI / OCR</span>
+    </div>
+
+    <p class="project-desc">
+      An AI-powered document processing platform that ingests handwritten and digital timesheets via PDF upload, runs OCR extraction, applies Claude AI for intelligent data interpretation, matches employees to placements in Bullhorn ATS, and routes completed records to stakeholders — replacing a fully manual data entry workflow.
+    </p>
+
+    <!-- Main screenshot -->
+    <div class="screenshots-main">
+      <div class="screenshot-full" onclick="openLightbox(this.querySelector('img').src)">
+        <img src="pinpoint-timesheet.png" alt="Pinpoint Timesheet Detail View" loading="lazy">
+      </div>
+      <div class="screenshot-caption">Timesheet detail — side-by-side PDF viewer with AI-extracted punch data and discrepancy notes</div>
+    </div>
+
+    <!-- Sub screenshots -->
+    <div class="screenshots-sub">
+      <div>
+        <div class="screenshot-thumb" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="pinpoint-upload.png" alt="Pinpoint Upload Progress" loading="lazy">
+        </div>
+        <div class="screenshot-caption">Batch upload progress — real-time per-page pipeline status (OCR → AI → Match)</div>
+      </div>
+      <div>
+        <div class="screenshot-thumb" onclick="openLightbox(this.querySelector('img').src)">
+          <img src="pinpoint-processing.png" alt="Pinpoint Processing Results" loading="lazy">
+        </div>
+        <div class="screenshot-caption">Processing results — AI summaries, matched placements, and extracted punch tables</div>
+      </div>
+    </div>
+
+    <!-- Routing screenshot -->
+    <div class="screenshots-main" style="margin-top:12px;">
+      <div class="screenshot-full" onclick="openLightbox(this.querySelector('img').src)">
+        <img src="pinpoint-routing.png" alt="Client Routing Management" loading="lazy">
+      </div>
+      <div class="screenshot-caption">Client Management &amp; Stakeholder Routing — Bullhorn ATS integration for client/placement lookup</div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <h4>AI Document Understanding</h4>
+        <p>Claude AI interprets handwritten timesheets, flags discrepancies between reported and calculated hours, and generates human-readable summaries.</p>
+      </div>
+      <div class="feature">
+        <h4>OCR + ATS Matching</h4>
+        <p>Tesseract OCR extracts raw data; matched against live Bullhorn placement records to identify the correct employee and job order automatically.</p>
+      </div>
+      <div class="feature">
+        <h4>Pipeline Observability</h4>
+        <p>Per-page real-time status dashboard showing each stage — Exam, OCR, PDF save, AI processing, client match, and associate identification.</p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <span class="stack-tag">Angular</span>
+      <span class="stack-tag">Node.js</span>
+      <span class="stack-tag">Claude AI API</span>
+      <span class="stack-tag">Tesseract OCR</span>
+      <span class="stack-tag">Bullhorn ATS</span>
+      <span class="stack-tag">MongoDB</span>
+      <span class="stack-tag">Socket.io</span>
+      <span class="stack-tag">TypeScript</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 Lawrence Ham &nbsp;·&nbsp; RCP Solutions LLC</span>
+    <span>Albuquerque, NM</span>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <div class="lightbox-close" onclick="closeLightbox()">×</div>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <script>
+    function openLightbox(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox').classList.add('open');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+
+</body>
+</html>
