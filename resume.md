@@ -108,6 +108,4 @@ graph TD
 ---
 
 ## 🎓 Education & Certifications
-
-- **AWS Certified Developer – Associate**
 - **Computer Science Coursework** | Central New Mexico Community College (CNM)
