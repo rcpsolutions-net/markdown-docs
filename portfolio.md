@@ -66,7 +66,7 @@ Node.js PM2 worker processes RabbitMQ messages, manages printer job state machin
 ## Project 02 — Pinpoint AI + OCR
 `Partners Personnel` · *Intelligent timesheet processing system*
 
-An AI-powered document processing platform that ingests handwritten and digital timesheets via PDF upload, runs OCR extraction, applies Claude AI for intelligent data interpretation, matches employees to placements in Bullhorn ATS, and routes completed records to stakeholders — replacing a fully manual data entry workflow.
+An AI-powered document processing platform that ingests handwritten and digital timesheets via PDF upload, runs OCR extraction, applies Google AI for intelligent data interpretation, matches employees to placements via various MS-SQL queries, and routes completed records to stakeholders — replacing a fully manual data entry workflow.
 
 ![Pinpoint Timesheet Detail View](pinpoint-timesheet.png)
 *Timesheet detail — side-by-side PDF viewer with AI-extracted punch data and discrepancy notes*
