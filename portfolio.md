@@ -29,7 +29,7 @@ A full-stack payroll management platform used by staffing agencies nationwide to
 ---
 
 ![PDF Template Overlay Editor](rcp-pdf-editor.jpg)
-*PDF Template Overlay Editor — pixel-precise field mapping*
+*PDF Template Overlay Editor — pixel-precise field mapping* and yes, RCP Solutions = me.
 
 ---
 
