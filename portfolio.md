@@ -23,22 +23,25 @@ I design and develop full-stack enterprise applications for staffing and payroll
 
 A full-stack payroll management platform used by staffing agencies nationwide to print, distribute, and audit physical checks and paystubs remotely. Handles thousands of checks per week across 85+ branch locations, with real-time status tracking, PDF template management, and multi-level grouping and filtering.
 
-![RCP Live Checks Dashboard](rcp-live-checks.png)
-*Live Checks dashboard — Week 15, 4,236 checks across 85 branches totalling $2.98M*
+![RCP Live Checks Dashboard](images/rcp_v4_2_live_checks_admin.jpg)
+*Live Checks dashboard (v4.2) — Week 15, 4,236 checks across 85 branches totalling $2.98M*
+
+![RCP Live Checks Dashboard](images/rcp_v4_live_checks_admin.jpg)
+*Live Checks dashboard (v4.1) — Week 15, 4,236 checks across 85 branches totalling $2.98M*
 
 ---
 
-![PDF Template Overlay Editor](rcp-pdf-editor.jpg)
+![PDF Template Overlay Editor](images/rcp-pdf-editor.jpg)
 *PDF Template Overlay Editor — pixel-precise field mapping* and yes, RCP Solutions = me.
 
 ---
 
-![Branch Configuration](rcp-branch-config.png)
+![Branch Configuration](images/rcp-branch-config.png)
 *Branch/Department configuration — multi-client, multi-device routing*
 
 ---
 
-![RCP Queue Engine Logs](rcp-queue-engine.png)
+![RCP Queue Engine Logs](images/rcp-queue-engine.png)
 *RCP-Q-Engine — Linux PM2 process log showing RMQ message ingestion, MongoDB reconnection, printer job lifecycle, and impression confirmation across multiple branch devices*
 
 ---
@@ -68,22 +71,22 @@ Node.js PM2 worker processes RabbitMQ messages, manages printer job state machin
 
 An AI-powered document processing platform that ingests handwritten and digital timesheets via PDF upload, runs OCR extraction, applies Google AI for intelligent data interpretation, matches employees to placements via various MS-SQL queries, and routes completed records to stakeholders — replacing a fully manual data entry workflow.
 
-![Pinpoint Timesheet Detail View](pinpoint-timesheet.png)
+![Pinpoint Timesheet Detail View](images/pinpoint-timesheet.png)
 *Timesheet detail — side-by-side PDF viewer with AI-extracted punch data and discrepancy notes*
 
 ---
 
-![Pinpoint Upload Progress](pinpoint-upload.png)
+![Pinpoint Upload Progress](images/pinpoint-upload.png)
 *Batch upload progress — real-time per-page pipeline status (OCR → AI → Match)*
 
 ---
 
-![Pinpoint Processing Results](pinpoint-processing.png)
+![Pinpoint Processing Results](images/pinpoint-processing.png)
 *Processing results — AI summaries, matched placements, and extracted punch tables*
 
 ---
 
-![Client Routing Management](pinpoint-routing.png)
+![Client Routing Management](images/pinpoint-routing.png)
 *Client Management & Stakeholder Routing — Bullhorn ATS integration for client/placement lookup*
 
 ---
@@ -100,7 +103,7 @@ Tesseract OCR extracts raw data; matched against live Bullhorn placement records
 Per-page real-time status dashboard showing each stage — Exam, OCR, PDF save, AI processing, client match, and associate identification.
 
 ### Stack
-`Angular` `Node.js` `Claude AI API` `Tesseract OCR` `Bullhorn ATS` `MongoDB` `Socket.io` `TypeScript`
+`Angular` `Node.js` `Gemini AI API` `Tesseract OCR` `Bullhorn ATS` `MongoDB` `Socket.io` `TypeScript`
 
 ---
 
