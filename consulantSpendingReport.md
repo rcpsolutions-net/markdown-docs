@@ -1,5 +1,3 @@
-
-```markdown
 # 📋 Contractor & Consultant Spend Report
 **Source File:** `payableChargesByCandidateID.xlsx`  
 **Reporting Period:** February 2025 – May 2026  
@@ -27,7 +25,6 @@ pie title Proportional Share of Total Spend
     "Kruze Robinson ($371,164.50)" : 31.0
     "Steven Schmidt ($239,266.50)" : 20.0
     "Cheyenne Ayers ($174,918.00)" : 14.6
-
 ```
 
 ### 📊 Metric Breakdown Matrix
