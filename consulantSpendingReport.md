@@ -95,9 +95,6 @@ gantt
 ---
 
 ```
-
 ---
-
-Would you like me to make any adjustments to the date formatting or structural grouping before you present it?
 
 ```
