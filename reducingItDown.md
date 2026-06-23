@@ -1,4 +1,3 @@
-```markdown
 # 🏦 Minimizing Failed ACH Direct Deposits: Technical Strategy & Architecture
 
 With **15,000 direct deposits processed weekly**, even a nominal **1% error rate** on manual entry results in **150 failures per week**. At a penalty of **$35 per failed transfer**, this operational vulnerability costs your client **$5,250 weekly ($273,000 annually)** in NSF/bounce fees alone, alongside significant administrative overhead.
@@ -83,7 +82,5 @@ Simple adjustments to your data entry interface can drastically intercept low-ha
 
 1. **Phase 1 (Immediate - 1 to 2 Weeks):** Block copy/paste functionality in the UI, apply input masking, and spin up an internal cache or API hook against the Federal Reserve Routing Directory. This baseline script will mitigate an estimated **60%** of low-hanging entry typos.
 2. **Phase 2 (Mid-Term - 3 to 5 Weeks):** Roll out the open-banking **Plaid Link** client integration and introduce the **Mobile OCR Check-Scan tool**. Providing these modern digital ingestion workflows shifts the application away from human manual typing dependencies, mitigating the client's $35 recurring failure overhead to virtually zero.
-
-```
 
 ```
