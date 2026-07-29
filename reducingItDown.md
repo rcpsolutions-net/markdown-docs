@@ -1,4 +1,4 @@
-https://www.partnerspersonnel.com/wp-content/uploads/2020/05/header-logo.png
+![Partners Personnel](https://www.partnerspersonnel.com/wp-content/uploads/2020/05/header-logo.png)
 
 # 🏦 Minimizing Failed ACH Direct Deposits: Technical Strategy & Architecture
 
