@@ -23,7 +23,7 @@ graph TD
     G --> H[Extract MICR Line Data]
 
     classDef highlight fill:#fef9c3,stroke:#ca8a04
-    B2 -- Method 3: Back Office Manual Entry --> I[Restrictive UI Form]:highlight
+    B2 -- Method 3: Back Office Manual Entry --> I[Restrictive UI Form]:::highlight
 
     H --> J[Federal Reserve Routing Check & Bank-Length Validation]
     I --> J
