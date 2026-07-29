@@ -22,9 +22,9 @@ graph TD
     F --> G[AI/OCR Check Parsing Pipeline]
     G --> H[Extract MICR Line Data]
 
-    style B fill:#ff0000,stroke:#333,color:#fff
-    B -- Method 3: Back Office Manual Entry --> I[Restrictive UI Form]
-    style H fill:#ff0000,stroke:#333,color:#fff
+    classDef highlight fill:#fef9c3,stroke:#ca8a04
+    B2 -- Method 3: Back Office Manual Entry --> I[Restrictive UI Form]:highlight
+
     H --> J[Federal Reserve Routing Check & Bank-Length Validation]
     I --> J
     E --> K[100% Validated Data Saved]
