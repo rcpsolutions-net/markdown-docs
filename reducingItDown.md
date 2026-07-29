@@ -28,7 +28,7 @@ graph TD
     F --> G[AI/OCR Check Parsing Pipeline]
     G --> H[Extract MICR Line Data]
 
-    classDef highlight fill:#fef9c3,stroke:#fe8a04
+    classDef highlight fill:#fef9ff,stroke:#fe8a04
     B -- Method 3: Back Office Manual Entry --> I[Restrictive UI Form]:::highlight
     H --> J[Federal Reserve Routing Check & Bank-Length Validation]:::highlight
     I --> J
