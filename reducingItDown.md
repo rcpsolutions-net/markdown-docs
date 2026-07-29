@@ -2,7 +2,7 @@
 
 With **15,000 direct deposits processed weekly**, even a nominal **1% error rate** on manual entry results in **150 failures per week**. At a penalty of **$35 per failed transfer**, this operational vulnerability costs your client **$5,250 weekly ($273,000 annually)** in NSF/bounce fees alone, alongside significant administrative overhead.
 
-Because employees can update their account data on-demand within the payroll application, resolving this issue requires a robust, multi-tiered approach combining open banking protocols, programmatic input validation, optical recognition systems, and restrictive UI guardrails.
+Because **branch employees** *(and soon, associates as well)* can update their account data on-demand within the payroll application, resolving this issue requires a robust, multi-tiered approach combining open banking protocols, programmatic input validation, optical recognition systems, and restrictive UI guardrails.
 
 ---
 
@@ -12,7 +12,7 @@ To drive failed transactions down to near-zero, a defensive engineering strategy
 
 ```mermaid
 graph TD
-    A[Employee updates Direct Deposit] --> B{Choose Ingestion Method}
+    A[Associate Employee updates Direct Deposit] --> B{Choose Ingestion Method}
     
     B -- Method 1: Instant Auth --> C[Plaid / Finicity Link]
     C --> D[Secure OAuth Login]
@@ -22,9 +22,11 @@ graph TD
     F --> G[AI/OCR Check Parsing Pipeline]
     G --> H[Extract MICR Line Data]
     
-    B -- Method 3: Manual Entry --> I[Restrictive UI Form]
+    B -- Method 3: Back Office Manual Entry --> I[Restrictive UI Form]
+    style B fill:#ff0000,stroke:#333,color:#fff
     
     H --> J[Federal Reserve Routing Check & Bank-Length Validation]
+    style H fill:#ff0000,stroke:#333,color:#fff
     I --> J
     E --> K[100% Validated Data Saved]
     
