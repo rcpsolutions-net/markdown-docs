@@ -6,7 +6,8 @@
 
 Based on the referenced documentation, below are the tables containing information regarding employee pay methods, pay information, and related audit logs. 
  
-Note: Table names are what the Bullhorn API call Entities. *We need to be sure we can access that entity through the API. We cannot access them all (by design)*
+Note: Table names are what Bullhorn API call Entities (and are usually aliased into something shorter). 
+      *We need to be sure we can access that entity through the API. We cannot access them all (by design)*
 
 ---
 
