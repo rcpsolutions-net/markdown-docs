@@ -1,5 +1,5 @@
 **Based on the data dictionary table, here are the tables that contain information regarding employee pay methods, pay information, and related logs:**
-
+source: https://docs.google.com/spreadsheets/d/1-BpdPYj2i_T5glycmst6PXGrwi9SEdC90YEX_szBrL8/edit?gid=1313502510#gid=1313502510
 
 ### 1\. Employee Pay Method  
 * **`DirectDepositAccount`**: Contains specific details regarding employee/candidate direct deposit configurations, including bank name, account number, routing numbers (`transitNumber`, `institutionNumber`), `allocationMethod`, and `paymentOrder`.
