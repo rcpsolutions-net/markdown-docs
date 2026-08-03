@@ -1,8 +1,12 @@
+***What's on the data mirror?***
+
 > **References:**
 > * [Data Dictionary Table](https://docs.google.com/spreadsheets/d/1-BpdPYj2i_T5glycmst6PXGrwi9SEdC90YEX_szBrL8/edit?gid=1313502510#gid=1313502510)
 > * [Bullhorn Data Replication Schema Layout](https://help.bullhorn.com/article/Data-Replication-schema-layout)
 
-Based on the referenced documentation, below are the tables containing information regarding employee pay methods, pay information, and related audit logs.
+Based on the referenced documentation, below are the tables containing information regarding employee pay methods, pay information, and related audit logs. 
+
+Note: Table names are what the Bullhorn API call Entities. *We need to be sure we can access that entity through the API. We cannoy access them all*
 
 ---
 
