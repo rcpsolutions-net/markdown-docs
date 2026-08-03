@@ -1,4 +1,4 @@
-**Based on the data dictionary table, here are the tables that contain information regarding employee pay methods, pay information, and related logs:
+**Based on the data dictionary table, here are the tables that contain information regarding employee pay methods, pay information, and related logs:**
 
 
 ### 1\. Employee Pay Method  
@@ -19,4 +19,6 @@
   * **`EditHistoryPayMasterTransaction` & `EditHistoryFieldChangePayMasterTransaction`**: Audit logs that track any changes, modifications, or updates made to pay master transactions.
   * **`EditHistoryPayBillSetting` & `EditHistoryFieldChangePayBillSetting`**: Audit logs tracking historical changes to organizational pay and bill settings.
   * **`EditHistoryPayrollExportConfig` & `EditHistoryFieldChangePayrollExportConfig`**: Logs changes made to the configurations used for exporting payroll data.
-  * **`TimesheetEntryApprovalStatusLogEntry`**: Tracks the approval history and status changes of timesheet entries, which serve as the primary source log for generating pay.**
+  * **`TimesheetEntryApprovalStatusLogEntry`**: Tracks the approval history and status changes of timesheet entries, which serve as the primary source log for generating pay.
+
+
