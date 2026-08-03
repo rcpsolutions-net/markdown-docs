@@ -5,8 +5,8 @@
 > * [Bullhorn Data Replication Schema Layout](https://help.bullhorn.com/article/Data-Replication-schema-layout)
 
 Based on the referenced documentation, below are the tables containing information regarding employee pay methods, pay information, and related audit logs. 
-
-Note: Table names are what the Bullhorn API call Entities. *We need to be sure we can access that entity through the API. We cannoy access them all*
+ 
+Note: Table names are what the Bullhorn API call Entities. *We need to be sure we can access that entity through the API. We cannot access them all (by design)*
 
 ---
 
