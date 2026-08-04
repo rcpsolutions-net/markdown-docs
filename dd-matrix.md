@@ -93,3 +93,199 @@ Records are never physically deleted. Instead:
 * **`EditHistoryPayBillSetting` & `EditHistoryFieldChangePayBillSetting`** — Audit logs tracking historical changes to organizational pay and bill settings.
 * **`EditHistoryPayrollExportConfig` & `EditHistoryFieldChangePayrollExportConfig`** — Logs changes made to the configurations used for exporting payroll data.
 * **`TimesheetEntryApprovalStatusLogEntry`** — Tracks the approval history and status changes of timesheet entries, which serve as the primary source log for generating pay.
+
+---
+
+# BHDatamirror — Candidate* Tables & EmployeePay: Payment-Related Analysis
+
+## Scope
+
+All 29 `Candidate*` sub-tables and `EmployeePay` were scanned for payment-related columns
+(deposit, paycard, check, payment, bank, routing, transit, account, ach, wire),
+triggers, and indexes.
+
+---
+
+## Candidate* Sub-Tables — Payment Column Scan
+
+**Result: No payment-related columns found in any Candidate* sub-table.**
+
+The only "account" hits were `candidateFileAttachmentID` columns in file attachment
+tables — these are internal FK IDs, not financial account data.
+
+---
+
+## CandidateTaxInfo
+
+**Purpose:** Stores tax identity fields (SSN, DOB, TaxID, I-9).
+Synced bidirectionally with `Candidate` via triggers.
+
+**Payment-relevant columns:** None. Tax identity only.
+
+### Columns
+
+| Column | Type | Nullable | Notes |
+|---|---|---|---|
+| `candidateTaxInfoID` | int | NO | PK |
+| `candidateID` | int | YES | FK → Candidate |
+| `ssn` | nvarchar(MAX) | YES | Likely encrypted |
+| `taxID` | nvarchar(MAX) | YES | Likely encrypted |
+| `taxIDIndicator` | nvarchar(100) | YES | |
+| `dateOfBirth` | datetime2 | YES | |
+| `dateI9Expiration` | datetime2 | YES | |
+| `i9OnFile` | bit | YES | |
+| `militaryDomicileState` | nvarchar(100) | YES | |
+| `militaryDomicileExpiration` | datetime2 | YES | |
+| `customText1–5` | nvarchar(100) | YES | |
+| `customInt1–3` | int | YES | |
+| `customDate1–3` | datetime2 | YES | |
+| `isDeleted` | bit | YES | Soft-delete |
+| `dateAdded` | datetime2 | YES | |
+| `dateLastModified` | datetime2 | YES | |
+| `dateLastSync` | datetime2 | YES | |
+
+### Trigger: `trigger_UpdateCandidateFields_fromCTI` (ACTIVE)
+
+- **Event:** AFTER INSERT, UPDATE on `CandidateTaxInfo`
+- **Action:** Syncs `ssn`, `dateOfBirth`, `dateI9Expiration`, `i9OnFile`, `taxID`
+  **back** to `Candidate` when those fields + `dateLastModified` change
+- **Guard:** `TRIGGER_NESTLEVEL() > 1 RETURN` — prevents recursive loops
+  with `trigger_UpdateCTIFields_fromCandidate` on the Candidate table
+- **Payment-related:** No
+
+### Indexes
+
+| Index | Type | Columns |
+|---|---|---|
+| `PK_CandidateTaxInfo` | CLUSTERED PK | `candidateTaxInfoID` |
+| `IX_CandidateTaxInfo_candidateID` | NONCLUSTERED | `candidateID` |
+| `IX_CandidateTaxInfo_dateAdded` | NONCLUSTERED | `dateAdded` |
+| `IX_CandidateTaxInfo_dateLastSync` | NONCLUSTERED | `dateLastSync` |
+| `IX_CandidateTaxInfo_isDeleted` | NONCLUSTERED | `isDeleted` |
+| `IX_CandidateTaxInfo_Merge_candidateID` | NONCLUSTERED | `candidateTaxInfoID, candidateID` |
+
+**Soft-delete:** `isDeleted` bit column present.
+
+---
+
+## CandidateEncryptedData
+
+**Purpose:** Stores up to 10 custom encrypted text fields per candidate.
+No named payment fields — all generic `customEncryptedText1`–`customEncryptedText10`.
+
+### Columns
+
+| Column | Type | Nullable | Notes |
+|---|---|---|---|
+| `userID` | int | YES | |
+| `customEncryptedText1` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText2` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText3` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText4` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText5` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText6` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText7` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText8` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText9` | nvarchar(MAX) | YES | Encrypted |
+| `customEncryptedText10` | nvarchar(MAX) | YES | Encrypted |
+| `isDecrypted` | smallint | YES | |
+
+**Triggers:** None.
+**Payment-relevant columns:** Potentially — encrypted fields *could* store payment data,
+but no named columns indicate this.
+
+---
+
+## CandidateOnboardedDates
+
+**Purpose:** Tracks onboarding dates. No payment relevance.
+
+### Columns
+
+| Column | Type | Nullable |
+|---|---|---|
+| `CandidateID` | int | NO |
+| `Candidate_customDate10` | datetime2 | YES |
+| `EdithistoryDate` | datetime2 | YES |
+| `DateOnboarded` | datetime2 | YES |
+
+**Triggers:** None. **Payment-relevant columns:** None.
+
+---
+
+## EmployeePay
+
+**Purpose:** Stores individual pay line items linked to a paycheck (`payCheckID`).
+This is **earnings/timesheet data**, not payment method data.
+
+### Columns
+
+| Column | Type | Nullable | Notes |
+|---|---|---|---|
+| `employeePayID` | int | NO | PK |
+| `payCheckID` | int | YES | FK → paycheck record |
+| `amount` | money | YES | Dollar amount of this pay line |
+| `earnCodeName` | nvarchar(100) | YES | Earn code (REG, OT, etc.) |
+| `hoursWorked` | money | YES | Hours worked |
+| `hoursUnits` | money | YES | Units |
+| `unitRate` | money | YES | Rate per unit |
+| `chargeDate` | datetime2 | YES | Date of charge |
+| `glCode` | nvarchar(100) | YES | GL code |
+| `shift` | nvarchar(100) | YES | Shift |
+| `jobCode` | nvarchar(100) | YES | Job code |
+| `workCompID` | nvarchar(100) | YES | Workers comp ID |
+| `location` | nvarchar(100) | YES | Location |
+| `department` | nvarchar(100) | YES | Department |
+| `projPhase` | nvarchar(100) | YES | Project phase |
+| `projWork` | nvarchar(100) | YES | Project work |
+| `isDeleted` | bit | YES | Soft-delete (default 0) |
+| `dateAdded` | datetime2 | YES | |
+| `dateLastSync` | datetime2 | YES | |
+
+**Triggers:** None.
+
+### Indexes
+
+| Index | Type | Columns |
+|---|---|---|
+| `PK_EmployeePay` | CLUSTERED PK | `employeePayID` |
+| `IX_EmployeePay_payCheckID` | NONCLUSTERED | `payCheckID` |
+| `IX_EmployeePay_dateAdded` | NONCLUSTERED | `dateAdded` |
+| `IX_EmployeePay_dateLastSync` | NONCLUSTERED | `dateLastSync` |
+| `IX_EmployeePay_isDeleted` | NONCLUSTERED | `isDeleted` |
+
+**Soft-delete:** `isDeleted` bit column present (default 0).
+
+**Payment method relevance:** None. `EmployeePay` is earnings lines (what was earned),
+not disbursement method (how it was paid out). The link to disbursement is via
+`payCheckID` → a paycheck table (not yet examined).
+
+---
+
+## Trigger Cross-Reference: Candidate ↔ CandidateTaxInfo Sync
+
+Two triggers form a bidirectional sync loop with recursion guards:
+
+| Trigger | Table | Direction | Fields Synced |
+|---|---|---|---|
+| `trigger_UpdateCTIFields_fromCandidate` | `Candidate` | Candidate → CandidateTaxInfo | `ssn`, `dateOfBirth`, `dateI9Expiration`, `i9OnFile`, `taxID` |
+| `trigger_UpdateCandidateFields_fromCTI` | `CandidateTaxInfo` | CandidateTaxInfo → Candidate | `ssn`, `dateOfBirth`, `dateI9Expiration`, `i9OnFile`, `taxID` |
+
+Both fire AFTER INSERT/UPDATE and both have `TRIGGER_NESTLEVEL() > 1 RETURN` guards.
+Neither is payment-related.
+
+---
+
+## Summary: Where Payment Method Lives
+
+| Signal | Table | Column / Logic |
+|---|---|---|
+| **Direct Deposit** | `DirectDepositAccount` | Active rows (`isDeleted = 0`) for `candidateID` |
+| **Live Check** | `DirectDepositAccount` | No active rows for `candidateID` |
+| **Paycard** | *(not in this mirror)* | — |
+| **Tax identity** | `CandidateTaxInfo` | `ssn`, `taxID`, `dateOfBirth` |
+| **Earnings lines** | `EmployeePay` | `amount`, `earnCodeName`, `hoursWorked` |
+| **Paycheck link** | `EmployeePay.payCheckID` | → paycheck table (not yet examined) |
+
+**Conclusion:** No `Candidate*` sub-table contains direct deposit, paycard, or live check
+data. All payment method determination flows through `DirectDepositAccount` alone.
