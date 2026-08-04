@@ -289,3 +289,102 @@ Neither is payment-related.
 
 **Conclusion:** No `Candidate*` sub-table contains direct deposit, paycard, or live check
 data. All payment method determination flows through `DirectDepositAccount` alone.
+
+---
+
+# BHDatamirror — `dbo.PayCheck` Schema Reference
+
+## Overview
+
+`PayCheck` stores one row per paycheck issued to a candidate. It links to
+`EmployeePay` (earnings lines) via `payCheckID` and to `Candidate` via `candidateID`.
+Soft-delete via `isDeleted` (bit, default 0) — rows are never physically removed.
+
+**Triggers:** None.
+
+---
+
+## Columns
+
+| Column | Type | Nullable | Notes |
+|---|---|---|---|
+| `payCheckID` | int | NO | PK |
+| `candidateID` | int | YES | FK → Candidate |
+| `checkNumber` | nvarchar(100) | YES | Check/voucher number |
+| `checkDate` | datetime2 | YES | Date printed/issued |
+| `payDate` | datetime2 | YES | Date funds available |
+| `periodStartDate` | datetime2 | YES | Pay period start |
+| `periodEndDate` | datetime2 | YES | Pay period end |
+| `payPeriod` | nvarchar(50) | YES | Pay period label (e.g. "Weekly") |
+| `type` | nvarchar(50) | YES | Check type (e.g. "Regular", "Void") |
+| `grossPay` | money | YES | Total gross pay |
+| `netPay` | money | YES | Net pay after deductions |
+| `earnAmount` | money | YES | Regular earn amount |
+| `otherEarnAmount` | money | YES | Other earnings |
+| `hoursWorked` | money | YES | Total hours worked |
+| `taxAmount` | money | YES | Total tax withheld |
+| `fitTaxableAmount` | money | YES | Federal income tax taxable amount |
+| `employeeTotalDeduction` | money | YES | Total employee deductions |
+| `isVoid` | bit | YES | Whether check was voided |
+| `voucherID` | nvarchar(200) | YES | External voucher reference |
+| `externalPayrollEmployeeID` | nvarchar(200) | YES | ID in external payroll system |
+| `payExportBatchExternalID` | int | YES | FK → pay export batch |
+| `employeeID` | nvarchar(MAX) | YES | External employee ID (string form) |
+| `workspaceID` | nvarchar(MAX) | YES | External workspace/tenant ID |
+| `globalPayRecord` | nvarchar(MAX) | YES | Raw global pay record (JSON blob?) |
+| `isDeleted` | bit | YES | Soft-delete (default 0) |
+| `dateAdded` | datetime2 | YES | |
+| `dateLastModified` | datetime2 | YES | |
+| `dateLastSync` | datetime2 | YES | |
+
+---
+
+## Indexes
+
+| Index | Type | Key Columns | Notes |
+|---|---|---|---|
+| `PK_PayCheck` | CLUSTERED PK | `payCheckID` | |
+| `IX_PayCheck_candidateID` | NONCLUSTERED | `candidateID` | Join to Candidate |
+| `IX_PayCheck_payExportBatchExternalID` | NONCLUSTERED | `payExportBatchExternalID` | Batch lookup |
+| `IX_PayCheck_dateAdded` | NONCLUSTERED | `dateAdded` | |
+| `IX_PayCheck_dateLastSync` | NONCLUSTERED | `dateLastSync` | |
+| `IX_PayCheck_isDeleted` | NONCLUSTERED | `isDeleted` | |
+| `IX_PayCheck_Merge_candidateID` | NONCLUSTERED | `payCheckID, candidateID` | Merge/upsert support |
+
+---
+
+## Triggers
+
+**None.**
+
+---
+
+## Soft-Delete Behavior
+
+Rows are never physically deleted. Use `WHERE isDeleted = 0` to filter active checks.
+Voided checks remain with `isVoid = 1` and `isDeleted = 0` — they are still active
+records, just marked void.
+
+---
+
+## Relationships
+
+| Relationship | Direction | Join |
+|---|---|---|
+| Candidate | Many PayChecks → One Candidate | `PayCheck.candidateID = Candidate.candidateID` |
+| EmployeePay | One PayCheck → Many Pay Lines | `EmployeePay.payCheckID = PayCheck.payCheckID` |
+| Pay Export Batch | Many PayChecks → One Batch | `PayCheck.payExportBatchExternalID` |
+
+---
+
+## Payment Method Notes
+
+`PayCheck` does **not** store the disbursement method (DD vs live check vs paycard).
+To determine how a check was paid:
+
+- **Direct Deposit:** candidate has active rows in `DirectDepositAccount` (`isDeleted = 0`)
+- **Live Check:** candidate has no active `DirectDepositAccount` rows
+- **Paycard:** not represented in this mirror
+
+The `type` column may carry values like `"Regular"`, `"Supplemental"`, or `"Void"` —
+but does **not** indicate DD vs paper check.
