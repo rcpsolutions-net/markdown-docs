@@ -287,7 +287,7 @@ erDiagram
 
 ## DirectDepositAccount Isolation
 
-> **Finding:** No stored procedure, trigger, view, or function in BHDatamirror writes to `DirectDepositAccount`. All writes come exclusively from the external sync process (rcp-gs-sync / GreenShades integration).
+> **Finding:** No stored procedure, trigger, view, or function in BHDatamirror writes to `DirectDepositAccount`. All writes come exclusively from the external sync process?.
 
 ```mermaid
 flowchart TD
@@ -373,7 +373,7 @@ flowchart TD
 | `Deduction` | ❌ No | — | No SQL Server audit trail |
 | `EmployerContribution` | ❌ No | — | No SQL Server audit trail |
 
-> **Implication:** To audit DDA changes, you must rely on the external sync source (GreenShades / rcp-gs-sync logs), not the database itself.
+> **Implication:** To audit DDA changes, you must rely on the external sync source (GreenShades / other), not the database itself.
 
 ---
 
@@ -381,7 +381,7 @@ flowchart TD
 
 1. **DirectDepositAccount is write-isolated within the database.** Zero stored procedures, triggers, views, or functions perform INSERT/UPDATE/DELETE on it. The only internal reference is a read-only SELECT in `PayrollExceptions_V4`.
 
-2. **All DDA writes originate externally** from the GreenShades sync process (`rcp-gs-sync`). The database is a mirror — it receives, not generates, DDA data.
+2. **All DDA writes originate externally** from the GreenShades sync process?. The database is a mirror — it receives, not generates, DDA data.
 
 3. **No CDC on DirectDepositAccount.** There is no built-in SQL Server change tracking for DDA edits. Audit trails must be sourced from the sync service logs or GreenShades itself.
 
