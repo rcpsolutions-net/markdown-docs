@@ -14,33 +14,34 @@ Note: Table names are what Bullhorn API call Entities (and are usually aliased i
 ### 1. Employee Pay Method
 
 * **`DirectDepositAccount`** — Contains specific details regarding employee/candidate direct deposit configurations, including bank name, account number, routing numbers (`transitNumber`, `institutionNumber`), `allocationMethod`, and `paymentOrder`.
+  
+ #### dbo.DirectDepositAccount - Schema Reference
+ ##### Columns (18 total)
 
-## Columns (18 total)
+ | # | Column | Type | Nullable | Default | Notes |
+ |---|--------|------|----------|---------|-------|
+ | 1 | `amount` | `money(19,4)` | YES | — | Fixed dollar amount for this deposit split |
+ | 2 | `transitNumber` | `nvarchar(50)` | YES | — | Bank routing/transit number |
+ | 3 | `bankName` | `nvarchar(200)` | YES | — | Human-readable bank name |
+ | 4 | `directDepositAccountTypeLookupID` | `int` | YES | — | FK → `DirectDepositAccountTypeLookup` (e.g. Checking/Savings) |
+ | 5 | `accountNumber` | `nvarchar(MAX)` | YES | — | Bank account number (MAX — likely encrypted/long) |
+ | 6 | `dateAdded` | `datetime2` | YES | — | Record creation timestamp |
+ | 7 | `candidateID` | `int` | YES | — | FK → `Candidate.candidateID` (the employee/worker) |
+ | 8 | `percentValue` | `money(19,4)` | YES | — | Percentage-based allocation (used when `allocationMethod` = percent) |
+ | 9 | `dateLastModified` | `datetime2` | YES | — | Last update timestamp |
+  | 10 | `institutionNumber` | `nvarchar(50)` | YES | — | Canadian bank institution number (3-digit) |
+ | 11 | `paymentOrder` | `int` | YES | — | Priority order when multiple accounts exist |
+ | 12 | `directDepositAccountID` | `int` | **NOT NULL** | — | **Primary Key** — clustered |
+ | 13 | `remainder` | `bit` | YES | — | If `1`, receives whatever is left after other splits |
+ | 14 | `currencyUnitID` | `int` | YES | — | FK → `CurrencyUnit` (USD, CAD, etc.) |
+ | 15 | `isDeleted` | `bit` | YES | `0` | **Soft-delete flag** — set to `1` instead of physical delete |
+ | 16 | `dateLastSync` | `datetime2` | YES | — | Last sync timestamp from Bullhorn source system |
+ | 17 | `allocationMethod` | `nvarchar(MAX)` | YES | — | Split calculation method (`"Percent"`, `"Amount"`, `"Remainder"`) |
+ | 18 | `deletedByUserID` | `int` | YES | — | FK → `CorporateUser.corporateUserID` — who soft-deleted this record |
 
-| # | Column | Type | Nullable | Default | Notes |
-|---|--------|------|----------|---------|-------|
-| 1 | `amount` | `money(19,4)` | YES | — | Fixed dollar amount for this deposit split |
-| 2 | `transitNumber` | `nvarchar(50)` | YES | — | Bank routing/transit number |
-| 3 | `bankName` | `nvarchar(200)` | YES | — | Human-readable bank name |
-| 4 | `directDepositAccountTypeLookupID` | `int` | YES | — | FK → `DirectDepositAccountTypeLookup` (e.g. Checking/Savings) |
-| 5 | `accountNumber` | `nvarchar(MAX)` | YES | — | Bank account number (MAX — likely encrypted/long) |
-| 6 | `dateAdded` | `datetime2` | YES | — | Record creation timestamp |
-| 7 | `candidateID` | `int` | YES | — | FK → `Candidate.candidateID` (the employee/worker) |
-| 8 | `percentValue` | `money(19,4)` | YES | — | Percentage-based allocation (used when `allocationMethod` = percent) |
-| 9 | `dateLastModified` | `datetime2` | YES | — | Last update timestamp |
-| 10 | `institutionNumber` | `nvarchar(50)` | YES | — | Canadian bank institution number (3-digit) |
-| 11 | `paymentOrder` | `int` | YES | — | Priority order when multiple accounts exist |
-| 12 | `directDepositAccountID` | `int` | **NOT NULL** | — | **Primary Key** — clustered |
-| 13 | `remainder` | `bit` | YES | — | If `1`, receives whatever is left after other splits |
-| 14 | `currencyUnitID` | `int` | YES | — | FK → `CurrencyUnit` (USD, CAD, etc.) |
-| 15 | `isDeleted` | `bit` | YES | `0` | **Soft-delete flag** — set to `1` instead of physical delete |
-| 16 | `dateLastSync` | `datetime2` | YES | — | Last sync timestamp from Bullhorn source system |
-| 17 | `allocationMethod` | `nvarchar(MAX)` | YES | — | Split calculation method (`"Percent"`, `"Amount"`, `"Remainder"`) |
-| 18 | `deletedByUserID` | `int` | YES | — | FK → `CorporateUser.corporateUserID` — who soft-deleted this record |
+ ---
 
----
-
-## Primary Key
+ #### Primary Key
 
 | Name | Type | Column |
 |------|------|--------|
