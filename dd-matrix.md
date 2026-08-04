@@ -1,3 +1,402 @@
+Here's the full markdown document — copy and paste the entire block:
+# BHDatamirror — Payroll Schema Reference
+
+> **Database:** `BHDataMirror` on `10.202.0.7` (SQL Server 2022 RTM-CU25-GDR)  
+> **Purpose:** Read-only Bullhorn mirror used by RCP Solutions for payroll reporting and sync.
+
+---
+
+## Table of Contents
+
+1. [Table Schemas](#table-schemas)
+2. [Entity Relationship Diagram](#entity-relationship-diagram)
+3. [DirectDepositAccount Isolation](#directdepositaccount-isolation)
+4. [Payment Method Logic](#payment-method-logic)
+5. [CDC Status](#cdc-status)
+6. [Key Findings](#key-findings)
+
+---
+
+## Table Schemas
+
+### `dbo.DirectDepositAccount`
+
+| Column | Type | Notes |
+|---|---|---|
+| `directDepositAccountID` | int | PK, clustered |
+| `candidateID` | int | FK → Candidate |
+| `amount` | money | Fixed dollar amount |
+| `percentValue` | money | Percentage allocation |
+| `allocationMethod` | nvarchar(MAX) | e.g. "Percent", "Amount" |
+| `remainder` | bit | Catch-all remainder flag |
+| `paymentOrder` | int | Priority order |
+| `transitNumber` | nvarchar(MAX) | ABA routing number |
+| `accountNumber` | nvarchar(MAX) | Likely encrypted |
+| `bankName` | nvarchar(MAX) | Bank name |
+| `institutionNumber` | nvarchar(MAX) | Institution identifier |
+| `directDepositAccountTypeLookupID` | int | FK → DirectDepositAccountTypeLookup |
+| `currencyUnitID` | int | FK → CurrencyUnit |
+| `dateAdded` | datetime2 | Created timestamp |
+| `dateLastModified` | datetime2 | Last modified timestamp |
+| `dateLastSync` | datetime2 | Last sync from Bullhorn |
+| `isDeleted` | bit | Soft-delete flag (default 0) |
+| `deletedByUserID` | int | FK → CorporateUser |
+
+**Soft-delete:** Rows are never physically removed. `isDeleted = 1` marks a deleted account.  
+**Triggers:** None.  
+**Indexes:** 8 non-clustered including `IX_DirectDepositAccount_isDeleted`, `IX_DirectDepositAccount_Merge_candidateID`.
+
+---
+
+### `dbo.Candidate`
+
+263 columns total. Payment-relevant columns:
+
+| Column | Type | Notes |
+|---|---|---|
+| `candidateID` | int | PK, clustered |
+| `payrollStatus` | nvarchar(100) | Payroll enrollment status |
+| `payrollClientStartDate` | datetime2 | Start date with payroll client |
+| `dateLastPayrollProviderSync` | datetime2 | Last sync from payroll provider |
+
+**No direct deposit, paycard, or live check columns on Candidate itself.**  
+**Trigger:** `trigger_UpdateCTIFields_fromCandidate` — AFTER INSERT/UPDATE, syncs `ssn`, `dateOfBirth`, `dateI9Expiration`, `i9OnFile`, `taxID` → CandidateTaxInfo. Has recursion guard (`TRIGGER_NESTLEVEL() > 1 RETURN`). Not payment-related.
+
+---
+
+### `dbo.CandidateTaxInfo`
+
+| Column | Type | Notes |
+|---|---|---|
+| `candidateTaxInfoID` | int | PK, clustered |
+| `candidateID` | int | FK → Candidate |
+| `ssn` | nvarchar(MAX) | Encrypted |
+| `taxID` | nvarchar(MAX) | Encrypted |
+| `taxIDIndicator` | nvarchar | Tax ID type |
+| `dateOfBirth` | datetime2 | |
+| `dateI9Expiration` | datetime2 | |
+| `i9OnFile` | bit | |
+| `militaryDomicileState` | nvarchar | |
+| `militaryDomicileExpiration` | datetime2 | |
+| `customText1–5` | nvarchar(MAX) | |
+| `customInt1–3` | int | |
+| `customDate1–3` | datetime2 | |
+| `isDeleted` | bit | Soft-delete |
+| `dateAdded` | datetime2 | |
+| `dateLastModified` | datetime2 | |
+| `dateLastSync` | datetime2 | |
+
+**Trigger:** `trigger_UpdateCandidateFields_fromCTI` — AFTER INSERT/UPDATE, syncs `ssn`, `dateOfBirth`, `dateI9Expiration`, `i9OnFile`, `taxID` back → Candidate. Has recursion guard. Not payment-related.
+
+---
+
+### `dbo.PayCheck`
+
+| Column | Type | Notes |
+|---|---|---|
+| `payCheckID` | int | PK, clustered |
+| `candidateID` | int | FK → Candidate |
+| `checkNumber` | nvarchar | |
+| `checkDate` | datetime2 | |
+| `payDate` | datetime2 | |
+| `periodStartDate` | datetime2 | |
+| `periodEndDate` | datetime2 | |
+| `payPeriod` | nvarchar(50) | |
+| `type` | nvarchar(50) | e.g. "Regular", "Void" |
+| `grossPay` | money | |
+| `netPay` | money | |
+| `earnAmount` | money | |
+| `otherEarnAmount` | money | |
+| `hoursWorked` | decimal | |
+| `taxAmount` | money | |
+| `fitTaxableAmount` | money | |
+| `employeeTotalDeduction` | money | |
+| `isVoid` | bit | Voided check flag |
+| `voucherID` | nvarchar(200) | |
+| `externalPayrollEmployeeID` | nvarchar(200) | |
+| `payExportBatchExternalID` | int | |
+| `employeeID` | nvarchar(MAX) | |
+| `workspaceID` | nvarchar(MAX) | |
+| `globalPayRecord` | nvarchar(MAX) | Likely JSON blob |
+| `isDeleted` | bit | Soft-delete (default 0) |
+| `dateAdded` | datetime2 | |
+| `dateLastModified` | datetime2 | |
+| `dateLastSync` | datetime2 | |
+
+**Triggers:** None.  
+**CDC:** Enabled — `cdc.dbo_PayCheck_CT` tracks all changes.  
+**Does NOT store disbursement method** (DD vs live check vs paycard).
+
+---
+
+### `dbo.EmployeePay`
+
+| Column | Type | Notes |
+|---|---|---|
+| `employeePayID` | int | PK, clustered |
+| `payCheckID` | int | FK → PayCheck |
+| `amount` | money | Earnings amount |
+| `earnCodeName` | nvarchar | Earn code |
+| `hoursWorked` | decimal | |
+| `hoursUnits` | nvarchar | |
+| `unitRate` | money | |
+| `chargeDate` | datetime2 | |
+| `glCode` | nvarchar | GL account code |
+| `shift` | nvarchar | |
+| `jobCode` | nvarchar | |
+| `workCompID` | int | FK → WorkersCompensation |
+| `location` | nvarchar | |
+| `department` | nvarchar | |
+| `projPhase` | nvarchar | |
+| `projWork` | nvarchar | |
+| `isDeleted` | bit | Soft-delete (default 0) |
+| `dateAdded` | datetime2 | |
+| `dateLastSync` | datetime2 | |
+
+**Triggers:** None. **Purpose:** Earnings lines (what was earned), not disbursement method.
+
+---
+
+### `dbo.Deduction` (child of PayCheck)
+
+| Column | Type | Notes |
+|---|---|---|
+| `deductionID` | int | PK |
+| `payCheckID` | int | FK → PayCheck |
+| `taxableAmount` | money | |
+| `taxAmount` | money | |
+| `overLimitAmount` | money | |
+| `code` | nvarchar | |
+| `type` | nvarchar | |
+| `description` | nvarchar | |
+| `deductionCategoryLookupID` | int | FK → lookup |
+| `unionID` | int | |
+| `oneTimeSwitch` | bit | |
+| `isDeleted` | bit | Soft-delete |
+| `dateAdded` | datetime2 | |
+| `dateLastSync` | datetime2 | |
+
+---
+
+### `dbo.EmployerContribution` (child of PayCheck)
+
+| Column | Type | Notes |
+|---|---|---|
+| `employerContributionID` | int | PK |
+| `payCheckID` | int | FK → PayCheck |
+| `amount` | money | |
+| `code` | nvarchar | |
+| `description` | nvarchar | |
+| `isDeleted` | bit | Soft-delete |
+| `dateAdded` | datetime2 | |
+| `dateLastSync` | datetime2 | |
+
+---
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    Candidate {
+        int candidateID PK
+        nvarchar payrollStatus
+        datetime2 payrollClientStartDate
+        datetime2 dateLastPayrollProviderSync
+    }
+
+    CandidateTaxInfo {
+        int candidateTaxInfoID PK
+        int candidateID FK
+        nvarchar ssn
+        nvarchar taxID
+        datetime2 dateOfBirth
+        bit isDeleted
+    }
+
+    DirectDepositAccount {
+        int directDepositAccountID PK
+        int candidateID FK
+        money amount
+        money percentValue
+        nvarchar allocationMethod
+        bit remainder
+        int paymentOrder
+        nvarchar transitNumber
+        nvarchar accountNumber
+        nvarchar bankName
+        int directDepositAccountTypeLookupID FK
+        bit isDeleted
+    }
+
+    DirectDepositAccountTypeLookup {
+        int directDepositAccountTypeLookupID PK
+        nvarchar label
+        bit isDeleted
+    }
+
+    PayCheck {
+        int payCheckID PK
+        int candidateID FK
+        nvarchar checkNumber
+        datetime2 checkDate
+        datetime2 payDate
+        money grossPay
+        money netPay
+        nvarchar type
+        bit isVoid
+        bit isDeleted
+    }
+
+    EmployeePay {
+        int employeePayID PK
+        int payCheckID FK
+        money amount
+        nvarchar earnCodeName
+        decimal hoursWorked
+        bit isDeleted
+    }
+
+    Deduction {
+        int deductionID PK
+        int payCheckID FK
+        money taxableAmount
+        money taxAmount
+        nvarchar code
+        nvarchar description
+        bit isDeleted
+    }
+
+    EmployerContribution {
+        int employerContributionID PK
+        int payCheckID FK
+        money amount
+        nvarchar code
+        nvarchar description
+        bit isDeleted
+    }
+
+    Candidate ||--o{ CandidateTaxInfo : "has"
+    Candidate ||--o{ DirectDepositAccount : "has"
+    Candidate ||--o{ PayCheck : "receives"
+    DirectDepositAccount }o--|| DirectDepositAccountTypeLookup : "typed by"
+    PayCheck ||--o{ EmployeePay : "contains"
+    PayCheck ||--o{ Deduction : "contains"
+    PayCheck ||--o{ EmployerContribution : "contains"
+```
+
+---
+
+## DirectDepositAccount Isolation
+
+> **Finding:** No stored procedure, trigger, view, or function in BHDatamirror writes to `DirectDepositAccount`. All writes come exclusively from the external sync process (rcp-gs-sync / GreenShades integration).
+
+```mermaid
+flowchart TD
+    subgraph External["External Systems (Write Access)"]
+        GS["GreenShades API"]
+        SYNC["rcp-gs-sync\n(Node.js service)"]
+    end
+
+    subgraph BHDatamirror["BHDatamirror (SQL Server)"]
+        DDA["dbo.DirectDepositAccount\n(isDeleted soft-delete)"]
+        DDAL["dbo.DirectDepositAccountTypeLookup"]
+        
+        subgraph ReadOnly["Read-Only References"]
+            SP["dbo.PayrollExceptions_V4\n(Stored Procedure)"]
+            NOTE1["SELECT only\nfor reporting"]
+        end
+
+        subgraph NoAccess["No Access"]
+            VIEWS["Views\n(0 reference DDA)"]
+            TRIGGERS["Triggers\n(0 on DDA table)"]
+            CDC["CDC\n(NOT enabled on DDA)"]
+            FUNCS["Functions\n(0 reference DDA)"]
+        end
+    end
+
+    GS -->|"Sync data"| SYNC
+    SYNC -->|"INSERT / UPDATE\n(isDeleted flag)"| DDA
+    DDA --- DDAL
+
+    SP -.->|"LEFT JOIN (SELECT only)"| DDA
+    SP -.->|"LEFT JOIN"| DDAL
+
+    VIEWS -. "no reference" .-> DDA
+    TRIGGERS -. "no triggers exist" .-> DDA
+    CDC -. "not enabled" .-> DDA
+    FUNCS -. "no reference" .-> DDA
+
+    style External fill:#d4edda,stroke:#28a745
+    style ReadOnly fill:#fff3cd,stroke:#ffc107
+    style NoAccess fill:#f8d7da,stroke:#dc3545
+    style DDA fill:#cce5ff,stroke:#004085
+```
+
+---
+
+## Payment Method Logic
+
+| Payment Method | Table | Condition |
+|---|---|---|
+| **Direct Deposit** | `DirectDepositAccount` | Active rows exist: `isDeleted = 0` for `candidateID` |
+| **Live Check** | `DirectDepositAccount` | No active rows for `candidateID` |
+| **Paycard** | *(not in mirror)* | Not represented in BHDatamirror |
+
+> Payment method is **inferred** — there is no explicit `paymentMethod` column on `Candidate` or `PayCheck`.
+
+```mermaid
+flowchart TD
+    START([Determine Payment Method\nfor candidateID]) --> QUERY
+
+    QUERY["Query DirectDepositAccount\nWHERE candidateID = ?\nAND isDeleted = 0"]
+
+    QUERY --> CHECK{Rows found?}
+
+    CHECK -->|"Yes (1+ rows)"| DD["💳 Direct Deposit\nUse account details\nfrom DirectDepositAccount"]
+    CHECK -->|"No rows"| LIVE["🖨️ Live Check\nNo DD account on file"]
+
+    PAYCARD["💰 Paycard\n(not tracked in BHDatamirror)"]
+
+    style DD fill:#d4edda,stroke:#28a745
+    style LIVE fill:#fff3cd,stroke:#ffc107
+    style PAYCARD fill:#f8d7da,stroke:#dc3545
+```
+
+---
+
+## CDC Status
+
+| Table | CDC Enabled | Change Table | Notes |
+|---|---|---|---|
+| `PayCheck` | ✅ Yes | `cdc.dbo_PayCheck_CT` | Full change history available |
+| `DirectDepositAccount` | ❌ No | — | No SQL Server audit trail |
+| `EmployeePay` | ❌ No | — | No SQL Server audit trail |
+| `Deduction` | ❌ No | — | No SQL Server audit trail |
+| `EmployerContribution` | ❌ No | — | No SQL Server audit trail |
+
+> **Implication:** To audit DDA changes, you must rely on the external sync source (GreenShades / rcp-gs-sync logs), not the database itself.
+
+---
+
+## Key Findings
+
+1. **DirectDepositAccount is write-isolated within the database.** Zero stored procedures, triggers, views, or functions perform INSERT/UPDATE/DELETE on it. The only internal reference is a read-only SELECT in `PayrollExceptions_V4`.
+
+2. **All DDA writes originate externally** from the GreenShades sync process (`rcp-gs-sync`). The database is a mirror — it receives, not generates, DDA data.
+
+3. **No CDC on DirectDepositAccount.** There is no built-in SQL Server change tracking for DDA edits. Audit trails must be sourced from the sync service logs or GreenShades itself.
+
+4. **Payment method is inferred, not stored.** Neither `Candidate` nor `PayCheck` has a `paymentMethod` column. The presence/absence of active `DirectDepositAccount` rows determines DD vs live check.
+
+5. **Soft-delete everywhere.** All key tables (`DirectDepositAccount`, `PayCheck`, `EmployeePay`, `CandidateTaxInfo`) use `isDeleted` bit flags. Rows are never physically removed — always filter `WHERE isDeleted = 0` for active records.
+
+6. **Bidirectional trigger sync (Candidate ↔ CandidateTaxInfo).** Two triggers keep tax identity fields in sync between tables. Both have recursion guards. Neither is payment-related.
+
+7. **PayCheck has CDC; child tables do not.** `cdc.dbo_PayCheck_CT` tracks paycheck-level changes, but `EmployeePay`, `Deduction`, and `EmployerContribution` have no change tracking.
+
+---
+
+In depth
 ***What's on the data mirror?***
 
 > **References:**
