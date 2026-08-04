@@ -393,11 +393,12 @@ flowchart TD
 
 7. **PayCheck has CDC; child tables do not.** `cdc.dbo_PayCheck_CT` tracks paycheck-level changes, but `EmployeePay`, `Deduction`, and `EmployerContribution` have no change tracking.
 
----
+--
 
-*** Table Schemas, etc ***
 
-**** So... What's on the data mirror? ****
+### Refernces: Table Schemas, etc ###
+
+#### So... What -is- on the data mirror? ####
 
 > **References:**
 > * [Data Dictionary Table](https://docs.google.com/spreadsheets/d/1-BpdPYj2i_T5glycmst6PXGrwi9SEdC90YEX_szBrL8/edit?gid=1313502510#gid=1313502510)
