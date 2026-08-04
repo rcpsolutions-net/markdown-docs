@@ -15,10 +15,10 @@ Note: Table names are what Bullhorn API call Entities (and are usually aliased i
 
 * **`DirectDepositAccount`** — Contains specific details regarding employee/candidate direct deposit configurations, including bank name, account number, routing numbers (`transitNumber`, `institutionNumber`), `allocationMethod`, and `paymentOrder`.
   
- #### dbo.DirectDepositAccount - Schema Reference
- ##### Columns (18 total)
+* #### dbo.DirectDepositAccount - Schema Reference
+* #### Columns (18 total)
 
- | # | Column | Type | Nullable | Default | Notes |
+* | # | Column | Type | Nullable | Default | Notes |
  |---|--------|------|----------|---------|-------|
  | 1 | `amount` | `money(19,4)` | YES | — | Fixed dollar amount for this deposit split |
  | 2 | `transitNumber` | `nvarchar(50)` | YES | — | Bank routing/transit number |
@@ -38,7 +38,7 @@ Note: Table names are what Bullhorn API call Entities (and are usually aliased i
  | 16 | `dateLastSync` | `datetime2` | YES | — | Last sync timestamp from Bullhorn source system |
  | 17 | `allocationMethod` | `nvarchar(MAX)` | YES | — | Split calculation method (`"Percent"`, `"Amount"`, `"Remainder"`) |
  | 18 | `deletedByUserID` | `int` | YES | — | FK → `CorporateUser.corporateUserID` — who soft-deleted this record |
-
+*
  ---
 
  #### Primary Key
