@@ -1,4 +1,3 @@
-Here's the full markdown document — copy and paste the entire block:
 # BHDatamirror — Payroll Schema Reference
 
 > **Database:** `BHDataMirror` on `10.202.0.7` (SQL Server 2022 RTM-CU25-GDR)  
