@@ -39,14 +39,12 @@ Note: Table names are what Bullhorn API call Entities (and are usually aliased i
 | 17 | `allocationMethod` | `nvarchar(MAX)` | YES | — | Split calculation method (`"Percent"`, `"Amount"`, `"Remainder"`) |
 | 18 | `deletedByUserID` | `int` | YES | — | FK → `CorporateUser.corporateUserID` — who soft-deleted this record |
  
-* #### Primary Key
-
+* ##### Primary Key
 | Name | Type | Column |
 |------|------|--------|
 | `PK_DirectDepositAccount` | CLUSTERED | `directDepositAccountID` |
 
-* #### - Indexes
-
+* ##### Indexes
 | Index Name | Columns | Unique |
 |------------|---------|--------|
 | `IX_DirectDepositAccount_candidateID` | `candidateID` | No |
@@ -58,8 +56,7 @@ Note: Table names are what Bullhorn API call Entities (and are usually aliased i
 | `IX_DirectDepositAccount_isDeleted` | `isDeleted` | No |
 | `IX_DirectDepositAccount_Merge_candidateID` | `directDepositAccountID, candidateID` | No |
 
-* #### - Foreign Keys
-
+* ##### Foreign Keys
 | FK Name | Column | References |
 |---------|--------|------------|
 | `FK_DirectDepositAccount_candidateID` | `candidateID` | `Candidate.candidateID` |
@@ -67,16 +64,17 @@ Note: Table names are what Bullhorn API call Entities (and are usually aliased i
 | `FK_DirectDepositAccount_directDepositAccountTypeLookupID` | `directDepositAccountTypeLookupID` | `DirectDepositAccountTypeLookup.directDepositAccountTypeLookupID` |
 | `FK_DirectDepositAccount_deletedByUserID` | `deletedByUserID` | `CorporateUser.corporateUserID` |
 
-* #### - Triggers
+* ##### Triggers
 **None.** No triggers are defined on this table.
 
-* #### - Soft-Delete Pattern
+* ##### Soft-Delete Pattern
 Records are never physically deleted. Instead:
 - **`isDeleted`** (`bit`, default `0`) — flip to `1` to logically delete; always filter `WHERE isDeleted = 0` for active records
 - **`deletedByUserID`** (`int`) — audit trail recording which `CorporateUser` performed the logical delete
 - No dedicated `deletedAt` timestamp column; infer deletion time from `dateLastModified` (the last write before `isDeleted` flipped to `1`)
   
 * **`DirectDepositAccountTypeLookup`** — A lookup table defining the types of direct deposit accounts, including a flag indicating whether the method is a pay card (`isPayCard`).
+---
 
 ### 2. Pay Information
 
