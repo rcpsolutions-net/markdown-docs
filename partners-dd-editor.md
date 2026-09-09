@@ -1,4 +1,4 @@
-# Walkthrough: Dedicated Direct Deposit Command Session for gs-cli
+# Walkthrough / Proof of Concept: Dedicated Direct Deposit Command Session for gs-cli
 
 Implemented a dedicated command group `direct-deposit` (alias: `dd`) in [gs-cli](file:///home/lham/dev/cli/gs-cli) to support GET, PUT (update/overwrite/clear), and DELETE operations on employee direct deposit settings according to the Greenshades OpenAPI specs.
 
