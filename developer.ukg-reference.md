@@ -41,7 +41,7 @@ graph TB
         subgraph "Specialty Solutions"
             PD[People-Doc<br/>HR Service Delivery]
             TK[Talk<br/>Frontline Engagement]
-            PF[People Fabric<br/>Suite-Wide Data (Beta)]
+            PF[People Fabric<br/>Suite-Wide Data-Beta]
         end
 
         subgraph "Integration Tools"
