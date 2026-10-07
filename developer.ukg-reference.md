@@ -23,7 +23,7 @@
 
 ```mermaid
 graph TB
-    subgraph "UKG Developer Hub (developer.ukg.com)"
+    subgraph "UKG Developer Hub developer.ukg.com"
         direction TB
 
         GS[🚀 Getting Started<br/>Call Your First API<br/>Auth Guide<br/>API Overview]
@@ -87,6 +87,7 @@ graph LR
 
     subgraph "Specialty"
         F[People-Doc]
+
         G[Talk]
         H[People Fabric]
     end
