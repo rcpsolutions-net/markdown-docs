@@ -1,202 +1,86 @@
-# ✍️ RCP Timesheets v1.0
+# RCP Timesheets v1.0 — Docker Dev Setup
 
-This document outlines the project structure for the **RCP Timesheets** application, a microservices-based system built with Docker.
+*Prompted and edited by Lawrence Ham*
 
----
+**RCP Timesheets** is a microservices-based system built with Docker, organized as a monorepo.
 
-## 📂 RCP-Timesheets Project Structure
+## Project Structure
 
-The project is organized into a monorepo, with separate directories for the frontend, backend, and Docker configuration files.
-
-```mermaid
-graph TD
-    A[rcp-timesheets]
-    A --> B{docker-compose.yml}
-    A --> C[frontend]
-    A --> D[backend]
-    A --> E[docker-config]
-    
-    subgraph frontend
-        C --> F{Dockerfile}
-        C --> G{package.json}
-        C --> H{angular.json}
-        C --> I[src]
-    end
-    
-    subgraph backend
-        D --> J[api]
-        D --> K[ocr-service]
-        D --> L[other-microservices]
-        
-        subgraph api
-            J --> M{Dockerfile}
-            J --> N{package.json}
-            J --> O[src/]
-        end
-        
-        subgraph ocr-service
-            K --> P{Dockerfile}
-            K --> Q{package.json}
-            K --> R[src/]
-        end
-        
-        subgraph other-microservices
-            L --> S{Dockerfile}
-            L --> T{package.json}
-            L --> U[src/]
-        end
-    end
-    
-    subgraph docker-config
-        E --> V{mongo-init.js}
-    end
+```
+rcp-timesheets/
+├── docker-compose.yml
+├── frontend/          # Angular: Dockerfile, package.json, angular.json, src
+├── backend/
+│   ├── api/           # each service: Dockerfile, package.json, src
+│   ├── ocr-service/
+│   └── other-microservices/
+└── docker-config/     # mongo-init.js
 ```
 
+## Prerequisites
 
-# Initial Setup & Development Workflow
+- **Docker Desktop** (Docker Engine + Compose).
+- Angular and Fastify projects with their `package.json` deps in place (`nodemon` for Fastify, `ng serve` for Angular).
 
-This document outlines the steps for setting up and using the **RCP Timesheets** project for local development with Docker.
+## Prepare Your Projects
 
------
-
-## 💻 1.1. Prerequisites
-
-Before you begin, ensure you have the following installed and configured:
-
-  * **Docker Desktop**: This includes Docker Engine and Docker Compose.
-  * **Project Dependencies**: Your Angular and Fastify projects should have their `package.json` files with all necessary `dependencies` and `devDependencies` (like `nodemon` for Fastify and `ng serve` for Angular).
-
------
-
-## 🛠️ 1.2. Prepare Your Projects
-
-Configure your project's `package.json` files to run within the Docker environment.
-
-### **Fastify (Backend)**
-
-Make sure your `package.json` files for all Fastify services (e.g., `backend/api-gateway/package.json` and `backend/ocrmypdf-service/package.json`) have `start` and `dev` scripts.
+**Fastify (backend)** — every Fastify service needs `start` + `dev` scripts:
 
 ```json
-"scripts": {
-  "start": "node src/index.js",
-  "dev": "nodemon src/index.js"
-}
+"scripts": { "start": "node src/index.js", "dev": "nodemon src/index.js" }
 ```
 
-Ensure your Fastify apps listen on **`0.0.0.0`** so they can be accessed from other containers and your host machine:
+Listen on **`0.0.0.0`** so other containers and the host can reach it: `fastify.listen({ port: 3000, host: '0.0.0.0' }, ...)`.
 
-```javascript
-fastify.listen({ port: 3000, host: '0.0.0.0' }, ...);
-```
-
-### **Angular (Frontend)**
-
-In your `frontend/package.json`, set the `start` script to allow host access:
+**Angular (frontend)** — allow host access:
 
 ```json
-"scripts": {
-  "start": "ng serve --host 0.0.0.0 --disable-host-check"
-}
+"scripts": { "start": "ng serve --host 0.0.0.0 --disable-host-check" }
 ```
 
-For API proxying, configure `proxy.conf.json` to redirect API calls to the Fastify gateway running on your host:
+Proxy API calls to the Fastify gateway on the host (`proxy.conf.json`, referenced in `angular.json` "serve" options):
 
 ```json
-// proxy.conf.json (referenced in angular.json "serve" options)
-{
-  "/api": {
-    "target": "http://localhost:3000",
-    "secure": false,
-    "changeOrigin": true
-  }
-}
+{ "/api": { "target": "http://localhost:3000", "secure": false, "changeOrigin": true } }
 ```
 
-> 💡 **Note**: The `API_BASE_URL` in `docker-compose.yml` is for internal container use. Client-side requests from your browser will use the `localhost` proxy.
+> The `API_BASE_URL` in `docker-compose.yml` is for *internal container* use. Browser-side requests go through the `localhost` proxy.
 
------
+## Run Everything
 
-## 🚀 1.2. Run Everything
-
-Navigate to your project's root directory (`your-project/`) and run the following command to build and start all services:
+From the project root:
 
 ```bash
 docker compose up --build
 ```
 
-  * **`--build`**: This command instructs Docker Compose to build or rebuild images for services with a `build` context before starting them. Use it for the first run or when you've changed a `Dockerfile`.
-  * **`up`**: This command creates and starts all containers defined in your `docker-compose.yml` file.
+- `--build`: (re)build images for services with a `build` context — use on first run or after a `Dockerfile` change.
+- `up`: create and start all containers defined in `docker-compose.yml`.
 
------
+## Hot-Reloading
 
-## 🔄 1.4. Development with Hot-Reloading
+- **Fastify/Node:** source dir mounted as a Docker **volume** + **`nodemon`** inside the container → saving on the host restarts the server.
+- **Angular:** frontend volume + **`ng serve`** in the container → browser hot-reload.
 
-This setup is optimized for a fluid development workflow.
+## Accessing Services
 
-  * **Fastify/Node.js**: By mapping your source code directory as a Docker **`volume`** and running **`nodemon`** inside the container, any changes you save on your host machine will automatically trigger the Fastify server to restart.
-  * **Angular**: Similarly, the `volume` mapping for the frontend and the use of **`ng serve`** within the container enables automatic hot-reloading in your browser as you make changes.
+- Frontend: `http://localhost:4200`
+- API Gateway: `http://localhost:3000`
+- OCR Service (if exposed): `http://localhost:3001`
+- MongoDB: `mongodb://user:password@localhost:27017/mydatabase`
+- RabbitMQ Management UI: `http://localhost:15672` (login `user`/`password`)
 
------
+## Stopping
 
-## 🌐 1.5. Accessing Your Services
+- **`Ctrl+C`** in the terminal running `docker compose up`.
+- `docker compose down` — stop + remove containers, keep volumes.
+- `docker compose down --volumes` — also delete named volumes (resets MongoDB data).
 
-Once everything is running, you can access the various services via your host machine:
+## Considerations & Best Practices
 
-  * **Frontend**: `http://localhost:4200`
-  * **API Gateway**: `http://localhost:3000`
-  * **OCR Service (if exposed)**: `http://localhost:3001`
-  * **MongoDB**: `mongodb://user:password@localhost:27017/mydatabase`
-  * **RabbitMQ Management UI**: `http://localhost:15672` (Login with `user`/`password`)
-
------
-
-## 🛑 1.6. Stopping Services
-
-To stop your services, use the following commands in your terminal.
-
-1.  To stop the running containers, press **`Ctrl+C`** in the terminal where `docker compose up` is running.
-
-2.  To stop and remove containers (but keep volumes for data persistence):
-
-    ```bash
-    docker compose down
-    ```
-
-3.  To stop and remove containers and **delete named volumes** (useful for resetting your MongoDB data):
-
-    ```bash
-    docker compose down --volumes
-    ```
-
------
-
-## ⚙️ 1.7. Important Considerations and Best Practices
-
-### **Environment Variables**
-
-Use environment variables for all configuration, such as database URLs and API keys. Docker Compose's `environment` section is ideal for this in a development environment.
-
-### **Internal Communication**
-
-Services within the same network (e.g., `app_network`) can communicate using their **service names as hostnames**. For example, your Fastify service can connect to the database using `mongodb` as the host.
-
-### **`depends_on` vs. Application Readiness**
-
-The `depends_on` setting in `docker-compose.yml` only ensures that a container **starts** before another, not that the application inside it is fully ready. For production, consider using "health checks" or "wait-for-it" scripts for a more robust startup process.
-
-### **Volume Trick**
-
-The anonymous volume `- /app/node_modules` is a crucial technique for Node.js development. It prevents your host machine's potentially incompatible `node_modules` from overwriting the dependencies installed inside the container, preserving the result of `npm install`.
-
-### **Production vs. Development**
-
-This setup is optimized for **development**. For a production environment, you should:
-
-  * Use multi-stage Dockerfiles to create smaller images.
-  * Avoid mounting source code volumes.
-  * Use a separate `docker-compose.prod.yml` or an orchestrator like Kubernetes.
-  * Implement stronger password and secret management.
-
-### **Debugging**
-
-To view logs, use `docker compose logs -f <service_name>`. For interactive debugging, you may need to configure your IDE (like VS Code) to attach to a Node.js process running inside a Docker container.
+- **Env vars** for all config (DB URLs, API keys); Compose's `environment` is fine for dev.
+- **Internal comms:** services on the same network (e.g. `app_network`) reach each other **by service name** (e.g. host `mongodb`).
+- **`depends_on` ≠ readiness:** it only orders container *start*, not app readiness. Use healthchecks / wait-for-it in prod.
+- **Volume trick:** the anonymous volume `/app/node_modules` prevents the host's (possibly incompatible) `node_modules` from clobbering the container's `npm install`.
+- **Dev vs prod:** this setup is dev-only. For prod: multi-stage Dockerfiles, no source mounts, a separate `docker-compose.prod.yml` or an orchestrator (Kubernetes), stronger secret management.
+- **Debugging:** `docker compose logs -f <service_name>`; interactive debugging may require attaching your IDE (VS Code) to a Node process inside the container.

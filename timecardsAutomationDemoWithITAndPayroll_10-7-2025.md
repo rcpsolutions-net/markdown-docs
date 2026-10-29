@@ -1,57 +1,47 @@
+# Meeting Debrief: OCR Automation Tool with IT & Payroll
 
-# 🚀 Meeting Debrief: Supercharging Payroll with the New OCR Automation Tool
+*Prompted and edited by Lawrence Ham*
 
-**Objective:** This session served as a pivotal demonstration of the new OCR/AI tool designed to digitize manual timecard entry. The primary goals were to showcase its current capabilities and, more importantly, to gather critical feedback from the payroll team to guide the next phase of development into a truly indispensable workflow solution.
+**Date:** October 7, 2025 — a live demo of the new OCR/AI tool for digitizing manual timecard entry, plus payroll-team feedback to guide the next phase.
 
-### 🤖 The OCR/AI Tool in Action: From PDF to Actionable Data
+## The Tool in Action
 
-Lawrence presented a live demonstration of the tool's core functionality. The workflow showcased a powerful combination of OCR (Optical Character Recognition) and AI to intelligently process timecard documents.
+Lawrence presented the core workflow: **PDF upload → OCR + AI extraction → automatic validation.**
 
-*   **Effortless Ingestion:** The process begins with a simple PDF upload. Future enhancements could include automated ingestion from a dedicated email inbox or fax line.
-*   **Intelligent Extraction:** The tool scans the document and extracts key data points, including employee names, dates, and individual time punches (in/out for lunch, in/out for the day).
-*   **Automated Validation & Flagging:** A standout feature was the system's ability to automatically perform calculations and visually flag discrepancies.
-    > "Is that why they're red, Lawrence? Is that like to flag your attention?"
-    
-    Anytime the AI's calculated hours did not match the total hours written on the timecard, the fields were highlighted in **red**, immediately drawing the user's attention to potential errors that require manual review. This transforms the tool from a simple data entry assistant into a proactive validation engine.
+- **Ingestion:** starts with a simple PDF upload. Future: automated ingestion from a dedicated email inbox or fax line.
+- **Extraction:** scans the document and pulls employee names, dates, and individual time punches (in/out for lunch, in/out for the day).
+- **Validation & flagging:** the system auto-calculates and highlights **in red** any field where the AI's calculated hours don't match the total written on the timecard. Payroll immediately got it: *"Is that why they're red, Lawrence? Is that like to flag your attention?"* This turns the tool from a data-entry assistant into a **proactive validation engine**.
 
-### 🔗 The "Missing Link": Critical Data from Bullhorn
+## The "Missing Link": Bullhorn Context
 
-The discussion quickly zeroed in on a fundamental requirement: the OCR data, while valuable, is incomplete without critical context from Bullhorn. To eliminate the need for users to constantly switch between systems, the tool must become a unified validation dashboard.
+The OCR data is incomplete without Bullhorn context. To stop users switching between systems, the tool must become a **unified validation dashboard**. Must-have fields to pull from Bullhorn alongside the OCR'd card:
 
-The payroll team identified several **must-have** data points that need to be pulled from Bullhorn and displayed alongside the OCR'd timecard information:
+- **Assignment ID** — the **absolute primary key**; all hours are submitted against a specific Assignment ID, so it's the most critical matching piece.
+- **Client / Customer ID** — essential to identify the client, especially on national VMS accounts where names are generic or repetitive across locations.
+- **Pay Rate** — crucial for complex OT rules. As Karla noted, **Nevada** rules depend on whether an employee earns more or less than **$18/hour**. Displaying it in-tool is non-negotiable.
+- **Week start/end dates** — to validate the card's period against the assignment's active dates.
 
-*   **🔑 Assignment ID:** This was identified as the **absolute primary key**. All hours must be submitted against a specific Assignment ID, making it the most critical piece of information for matching a timecard to a record in Bullhorn.
-*   **🏢 Client / Customer ID Number:** Essential for correctly identifying the client, especially for national VMS accounts where client names can be generic or repetitive across different locations.
-*   **💵 Pay Rate:** Crucial for applying complex overtime rules. As Karla noted, rules in Nevada are dependent on whether an employee earns more or less than $18/hour. Displaying the pay rate directly in the tool is non-negotiable.
-*   **🗓️ Week Start/End Dates:** Needed to validate that the timecard's period aligns with the assignment's active dates.
+## Complex Business Rules
 
-### 🧠 Beyond the Numbers: Handling Complex Business Rules
+A simple hours calculator isn't enough — the tool eventually needs a **rules engine**:
 
-It became evident that a simple hours calculator is not enough. The tool must eventually incorporate a sophisticated rules engine to be truly effective.
+- **Multi-layered hierarchy:** payroll rules are governed by **Client-specific → State → County → City** mandates.
+- **Specialized pay codes:** Erin flagged the need to recognize and categorize pay codes (holiday, sick, vacation) captured on a card.
 
-*   **A Multi-Layered Hierarchy:** The team confirmed that payroll rules are governed by a complex hierarchy that includes **Client-specific**, **State**, **County**, and even **City**-level mandates.
-*   **Specialized Pay Codes:** Erin highlighted another layer of complexity: the need for the tool to recognize and correctly categorize various **pay codes** (e.g., holiday, sick time, vacation) that can be captured on a timecard.
+## The Path Forward: Direct SQL Integration
 
-### ⚡ The Path Forward: Direct SQL Integration for Maximum Power
-
-A pivotal technical decision was made during the call. Instead of navigating the potential limitations of the Bullhorn API, the team opted for a more direct and powerful approach.
+A pivotal technical decision: instead of the Bullhorn API's limitations, connect **directly to the mirrored SQL database**.
 
 > **Lawrence:** "If I have access to... the mirror database, it's gonna be rather quick. I'm gonna shock you guys."
 
-By connecting directly to the **mirrored SQL database**, Lawrence gains greater flexibility, faster query speeds, and unrestricted access to the data tables. This will significantly accelerate the integration process and allow for the creation of more complex and reliable matching logic.
+Direct SQL gives faster queries, more flexibility, and unrestricted access to the tables — accelerating integration and enabling more complex, reliable matching logic.
 
----
-
-### ✅ Action Plan & Next Steps
-
-To maintain momentum, the following action items were agreed upon, with a follow-up call planned for the next week to review progress.
+## Action Plan & Next Steps
 
 | Action Item | Owner(s) | Details |
 | :--- | :--- | :--- |
-| **🎨 Provide UI Feedback & Mockups** | Payroll Team | Send sketches, screenshots, or detailed descriptions of the ideal user interface. Focus on the layout of Bullhorn data, required buttons, and overall workflow. |
-| **🔓 Grant Database Access** | Yasser | Provide Lawrence with the necessary credentials and connection information for the Bullhorn SQL mirror database. |
-| **🛠️ Develop Integration Queries** | Lawrence | Once access is granted, begin developing the SQL queries needed to match OCR'd data to Bullhorn records and pull the critical fields (Assignment ID, Pay Rate, etc.). |
-| **📚 Compile Master Business Rules** | Maria | Work with Jen to obtain the master document of all client, state, and local payroll rules. This will be essential for a future development phase. |
-| **🗓️ Schedule Follow-up Meeting** | David | Organize the next follow-up call to review Lawrence's progress on the integration and discuss the UI feedback from the payroll team. |
-
-
+| **Provide UI feedback & mockups** | Payroll Team | Sketches/screenshots/descriptions of the ideal UI — layout of Bullhorn data, required buttons, overall workflow. |
+| **Grant database access** | Yasser | Credentials + connection info for the Bullhorn SQL mirror database. |
+| **Develop integration queries** | Lawrence | Once access is granted, build the SQL queries to match OCR'd data to Bullhorn records and pull the critical fields (Assignment ID, Pay Rate, etc.). |
+| **Compile master business rules** | Maria (+ Jen) | Obtain the master document of all client/state/local payroll rules for a future development phase. |
+| **Schedule follow-up meeting** | David | Next follow-up call to review Lawrence's integration progress and the payroll team's UI feedback. |
